@@ -41,6 +41,15 @@
       border-radius: 8px;
     }
 
+    .filter-summary {
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    .filter-summary strong {
+      color: var(--text-main);
+    }
+
     .content-panel {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -336,6 +345,7 @@
           </select>
         </div>
       </div>
+      <div id="filterSummary" class="filter-summary mt-2"></div>
     </section>
 
     <div class="row g-4">
@@ -490,12 +500,40 @@
       return video.title || video.name || "未命名影片";
     }
 
+    function normalizeVideoStatus(video) {
+      const status = String(video?.status || "planned").trim();
+      return ["planned", "watching", "completed"].includes(status) ? status : "planned";
+    }
+
     function getStatusLabel(status) {
       return {
         planned: "待安排",
         watching: "進行中",
         completed: "已完成"
       }[status] || status || "待安排";
+    }
+
+    function getStatusCounts() {
+      const counts = { all: state.videos.length, planned: 0, watching: 0, completed: 0 };
+      for (const video of state.videos) counts[normalizeVideoStatus(video)] += 1;
+      return counts;
+    }
+
+    function renderStatusOptions() {
+      const select = document.getElementById("statusFilter");
+      const currentValue = select.value || "all";
+      const counts = getStatusCounts();
+      const options = [
+        ["all", "所有狀態"],
+        ["planned", "待安排"],
+        ["watching", "進行中"],
+        ["completed", "已完成"]
+      ];
+
+      select.innerHTML = options.map(([value, label]) => (
+        `<option value="${value}">${label} (${counts[value] || 0})</option>`
+      )).join("");
+      select.value = options.some(([value]) => value === currentValue) ? currentValue : "all";
     }
 
     function getVideoSearchText(video) {
@@ -532,7 +570,7 @@
       const dateFilter = document.getElementById("dateFilter").value;
 
       let videos = [...state.videos];
-      if (statusFilter !== "all") videos = videos.filter((video) => video.status === statusFilter);
+      if (statusFilter !== "all") videos = videos.filter((video) => normalizeVideoStatus(video) === statusFilter);
       if (dateFilter === "dated") videos = videos.filter((video) => normalizeDateKey(video.date));
       if (dateFilter === "undated") videos = videos.filter((video) => !normalizeDateKey(video.date));
       if (queryText) videos = videos.filter((video) => getVideoSearchText(video).includes(queryText));
@@ -573,9 +611,25 @@
       const monthVideos = state.videos.filter((video) => normalizeDateKey(video.date).startsWith(monthPrefix));
 
       document.getElementById("totalVideosCount").textContent = state.videos.length;
-      document.getElementById("completedVideosCount").textContent = state.videos.filter((video) => video.status === "completed").length;
+      document.getElementById("completedVideosCount").textContent = state.videos.filter((video) => normalizeVideoStatus(video) === "completed").length;
       document.getElementById("monthVideosCount").textContent = monthVideos.length;
       document.getElementById("notesCount").textContent = state.notes.length;
+    }
+
+    function renderFilterSummary() {
+      const queryText = document.getElementById("searchText").value.trim();
+      const statusFilter = document.getElementById("statusFilter").value;
+      const dateFilter = document.getElementById("dateFilter").value;
+      const parts = [];
+
+      if (queryText) parts.push(`搜尋「${escapeHtml(queryText)}」`);
+      if (statusFilter !== "all") parts.push(`狀態：${escapeHtml(getStatusLabel(statusFilter))}`);
+      if (dateFilter === "dated") parts.push("已有日期");
+      if (dateFilter === "undated") parts.push("尚未排程");
+
+      const summary = parts.length ? parts.join(" / ") : "未套用篩選";
+      const sameAsAll = state.filteredVideos.length === state.videos.length && parts.length > 0;
+      document.getElementById("filterSummary").innerHTML = `目前條件：<strong>${summary}</strong>，符合 <strong>${state.filteredVideos.length}</strong> / ${state.videos.length} 筆影片${sameAsAll ? "。目前資料都符合這個條件，所以列表不會變少。" : "。"}`;
     }
 
     function renderCalendar() {
@@ -683,7 +737,7 @@
         video.series ? `(${video.series})` : "",
         video.category || "",
         normalizeDateKey(video.date) || "未排日期",
-        getStatusLabel(video.status)
+        getStatusLabel(normalizeVideoStatus(video))
       ].filter(Boolean).join(" · ");
 
       const mediaHtml = embedUrl
@@ -731,7 +785,7 @@
           <div class="card-body">
             <div class="d-flex justify-content-between gap-2 mb-1">
               <h3 class="h6 video-title mb-0">${escapeHtml(getVideoTitle(video))}</h3>
-              <span class="badge text-bg-secondary flex-shrink-0">${escapeHtml(getStatusLabel(video.status))}</span>
+              <span class="badge text-bg-secondary flex-shrink-0">${escapeHtml(getStatusLabel(normalizeVideoStatus(video)))}</span>
             </div>
             <div class="small text-secondary mb-2">${escapeHtml(video.series || "未分類")}${video.category ? ` | ${escapeHtml(video.category)}` : ""}</div>
             <p class="small mb-2">${escapeHtml(video.note || "")}</p>
@@ -752,6 +806,7 @@
       state.filteredNotes = getFilteredNotes();
       groupByDate();
       renderStats();
+      renderFilterSummary();
       renderCalendar();
       renderDayPanel();
       renderFilteredResults();
@@ -762,6 +817,7 @@
         const [videoResult, noteResult] = await Promise.all([loadVideos(), loadNotes()]);
         state.videos = videoResult.data;
         state.notes = noteResult.data;
+        renderStatusOptions();
         applyFiltersAndRender();
 
         const fromCache = videoResult.fromCache || noteResult.fromCache;

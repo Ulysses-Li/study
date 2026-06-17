@@ -200,6 +200,7 @@
         <button id="toggleImportBtn" class="btn btn-outline-dark" type="button">匯入 JSON</button>
         <button id="importSampleBtn" class="btn btn-outline-primary" type="button">匯入範例資料</button>
         <button id="settingsBtn" class="btn btn-outline-secondary" type="button">儲存預設設定</button>
+        <button id="completeDatedVideosBtn" class="btn btn-outline-primary" type="button">有日期設已完成</button>
         <span id="importBadge" class="badge text-bg-secondary align-self-center">尚未匯入</span>
       </div>
 
@@ -767,6 +768,40 @@
       }
     }
 
+    async function completeDatedVideos() {
+      const button = document.getElementById("completeDatedVideosBtn");
+      const targets = state.videos.filter((video) => video.id && video.date && video.status !== "completed");
+
+      if (!targets.length) {
+        showToast("目前沒有需要更新的有日期影片。");
+        return;
+      }
+
+      const confirmed = confirm(`將 ${targets.length} 筆有日期的影片狀態改成已完成，並把進度設為 100%。確定執行？`);
+      if (!confirmed) return;
+
+      button.disabled = true;
+      button.textContent = "更新中...";
+
+      try {
+        for (const video of targets) {
+          await saveVideo({
+            ...video,
+            status: "completed",
+            progress: 100
+          });
+        }
+        await loadAllData();
+        showToast(`已更新 ${targets.length} 筆有日期影片為已完成。`);
+      } catch (error) {
+        console.error("批次更新有日期影片失敗", error);
+        showToast("批次更新失敗，請確認 Firestore 權限。");
+      } finally {
+        button.disabled = false;
+        button.textContent = "有日期設已完成";
+      }
+    }
+
     function getImportErrorMessage(error) {
       if (error instanceof SyntaxError) return "JSON 格式錯誤，請確認貼上的內容是合法 JSON。";
       if (error?.code === "permission-denied") return "Firestore 權限不足，請確認管理員帳號與 rules。";
@@ -868,6 +903,7 @@
     document.getElementById("cancelImportBtn").addEventListener("click", () => document.getElementById("importBox").classList.add("d-none"));
     document.getElementById("importBtn").addEventListener("click", handleImportJson);
     document.getElementById("importSampleBtn").addEventListener("click", handleImportSampleJson);
+    document.getElementById("completeDatedVideosBtn").addEventListener("click", completeDatedVideos);
     document.getElementById("settingsBtn").addEventListener("click", async () => {
       try {
         await saveSettings({ siteName: "Louis Study Tracker", theme: "light", calendarStartDay: 1 });
