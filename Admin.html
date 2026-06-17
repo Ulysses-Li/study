@@ -222,8 +222,6 @@
         <button id="reloadBtn" class="btn btn-primary" type="button">重新載入</button>
         <button id="exportBtn" class="btn btn-outline-success" type="button">匯出 JSON</button>
         <button id="toggleImportBtn" class="btn btn-outline-dark" type="button">匯入 JSON</button>
-        <button id="importSampleBtn" class="btn btn-outline-primary" type="button">匯入範例資料</button>
-        <button id="settingsBtn" class="btn btn-outline-secondary" type="button">儲存預設設定</button>
         <button id="completeDatedVideosBtn" class="btn btn-outline-primary" type="button">有日期設已完成</button>
         <button id="helpBtn" class="btn btn-outline-secondary" type="button">F1 說明</button>
         <span id="importBadge" class="badge text-bg-secondary align-self-center">尚未匯入</span>
@@ -444,14 +442,6 @@
               <div class="help-item-body">開啟 JSON 貼上區。按「匯入到 Firestore」後，會把 JSON 寫入 Firestore。</div>
             </div>
             <div class="help-item">
-              <div class="help-item-title">匯入範例資料</div>
-              <div class="help-item-body">把內建的 sample-import.json 匯入 Firestore。通常只在初始化或重建資料時使用。</div>
-            </div>
-            <div class="help-item">
-              <div class="help-item-title">儲存預設設定</div>
-              <div class="help-item-body">寫入預設網站設定，例如站名、主題與月曆起始日。</div>
-            </div>
-            <div class="help-item">
               <div class="help-item-title">有日期設已完成</div>
               <div class="help-item-body">批次把已有日期但尚未完成的影片改成已完成，並把進度設為 100%。執行前會再次確認。</div>
             </div>
@@ -486,12 +476,10 @@
       deleteVideo,
       importJsonData,
       loadNotes,
-      loadSampleImportData,
       loadSettings,
       loadVideos,
       saveAdminUser,
       saveNote,
-      saveSettings,
       saveVideo
     } from "./js/firestore-service.js";
 
@@ -912,16 +900,6 @@
       }
     }
 
-    async function handleImportSampleJson() {
-      try {
-        await importDataToFirestore(await loadSampleImportData());
-      } catch (error) {
-        console.error("範例資料匯入失敗", error);
-        setBadge("importBadge", "匯入失敗", "danger");
-        showToast(getImportErrorMessage(error));
-      }
-    }
-
     function exportJson() {
       try {
         const data = JSON.stringify({ videos: state.videos, notes: state.notes }, null, 2);
@@ -979,18 +957,8 @@
     document.getElementById("toggleImportBtn").addEventListener("click", () => document.getElementById("importBox").classList.toggle("d-none"));
     document.getElementById("cancelImportBtn").addEventListener("click", () => document.getElementById("importBox").classList.add("d-none"));
     document.getElementById("importBtn").addEventListener("click", handleImportJson);
-    document.getElementById("importSampleBtn").addEventListener("click", handleImportSampleJson);
     document.getElementById("completeDatedVideosBtn").addEventListener("click", completeDatedVideos);
     document.getElementById("helpBtn").addEventListener("click", openHelpModal);
-    document.getElementById("settingsBtn").addEventListener("click", async () => {
-      try {
-        await saveSettings({ siteName: "Louis Study Tracker", theme: "light", calendarStartDay: 1 });
-        showToast("預設設定已儲存。");
-      } catch (error) {
-        console.error("設定儲存失敗", error);
-        showToast("設定儲存失敗。");
-      }
-    });
     document.getElementById("addNoteBtn").addEventListener("click", () => openNoteModal());
     document.getElementById("addVideoBtn").addEventListener("click", () => openVideoModal());
     document.getElementById("saveNoteBtn").addEventListener("click", handleSaveNote);
