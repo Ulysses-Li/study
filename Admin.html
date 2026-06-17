@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Training Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f8f9fa;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .table td {
+      vertical-align: middle;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container py-4">
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+      <h3 class="mb-0">📋 Training Video & Notes 管理</h3>
+      <span class="badge text-bg-secondary">Web Admin (Domain)</span>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="row g-2 align-items-end">
+          <div class="col-lg-7">
+            <label class="form-label">Apps Script Web App URL（.../exec）</label>
+            <input id="apiUrl" class="form-control mono" placeholder="https://script.google.com/macros/s/xxxxx/exec">
+          </div>
+          <div class="col-lg-3">
+            <label class="form-label">Admin Token（可選）</label>
+            <input id="token" class="form-control mono" placeholder="（若你有啟用）">
+          </div>
+          <div class="col-lg-2 d-grid">
+            <button class="btn btn-primary" onclick="saveConfig()">儲存設定</button>
+          </div>
+        </div>
+        <div class="small text-muted mt-2">
+          建議：把 URL/Token 存 localStorage，避免同事每次都要貼。
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-info">
+      <ul class="mb-0">
+        <li>Videos：date 留空 → 顯示在「未排日期」</li>
+        <li>Notes：同一天多筆 → 多列（可逐筆改/刪）</li>
+        <li>如果按儲存出現 CORS 錯誤：請看本文最後的「代理版」</li>
+      </ul>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-4">
+      <button class="btn btn-primary" onclick="loadAll()">重新載入</button>
+      <button class="btn btn-outline-success" onclick="exportJson()">匯出 JSON（複製）</button>
+      <button class="btn btn-outline-dark" onclick="toggleImport()">匯入 JSON（覆蓋）</button>
+    </div>
+
+    <!-- 匯入 JSON -->
+    <div id="importBox" class="card mb-4 d-none">
+      <div class="card-body">
+        <h5 class="card-title">匯入 JSON（整批覆蓋）</h5>
+        <textarea id="importText" class="form-control mono" rows="8"
+          placeholder='{"CALENDAR_NOTES":{}, "VIDEO_DB":[]}'></textarea>
+        <div class="mt-2 d-flex gap-2">
+          <button class="btn btn-danger" onclick="doImportOverwrite()">覆蓋匯入</button>
+          <button class="btn btn-secondary" onclick="toggleImport()">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="card-title mb-0">🗓️ Calendar Notes（多列）</h5>
+          <button class="btn btn-sm btn-outline-primary" onclick="openNoteModal()">新增 Note</button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-striped align-middle">
+            <thead>
+              <tr>
+                <th style="width:90px;">rowId</th>
+                <th style="width:170px;">date</th>
+                <th>note</th>
+                <th style="width:140px;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="notesTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Videos -->
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="card-title mb-0">🎬 Videos</h5>
+          <button class="btn btn-sm btn-outline-primary" onclick="openVideoModal()">新增影片</button>
+        </div>
+
+        <div class="row g-2 mb-2">
+          <div class="col-md-4">
+            <input id="q" class="form-control" placeholder="搜尋 series / name / url / date..." oninput="renderVideos()">
+          </div>
+          <div class="col-md-3">
+            <select id="filterDate" class="form-select" onchange="renderVideos()">
+              <option value="all">全部</option>
+              <option value="dated">有日期</option>
+              <option value="undated">未排日期</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-hover align-middle">
+            <thead>
+              <tr>
+                <th style="width:90px;">rowId</th>
+                <th style="width:70px;">series</th>
+                <th>name</th>
+                <th style="width:140px;">date</th>
+                <th>url</th>
+                <th style="width:160px;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="videosTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Note Modal -->
+  <div class="modal fade" id="noteModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="noteModalTitle">新增 Note</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="noteRowId">
+          <label class="form-label">date (YYYY-MM-DD)</label>
+          <input id="noteDate" class="form-control mono" placeholder="2026-02-02">
+          <label class="form-label mt-2">note</label>
+          <textarea id="noteText" class="form-control" rows="3" placeholder="備註內容"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" onclick="saveNote()">儲存</button>
+          <button class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video Modal -->
+  <div class="modal fade" id="videoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="videoModalTitle">新增影片</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="videoRowId">
+          <div class="row g-2">
+            <div class="col-md-2">
+              <label class="form-label">series</label>
+              <input id="videoSeries" class="form-control mono" placeholder="1">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">name</label>
+              <input id="videoName" class="form-control" placeholder="影片名稱">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">date</label>
+              <input id="videoDate" class="form-control mono" placeholder="2026-01-05（可留空）">
+            </div>
+            <div class="col-12">
+              <label class="form-label">url</label>
+              <input id="videoUrl" class="form-control mono"
+                placeholder="https://youtu.be/... 或 https://www.youtube.com/embed/...">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" onclick="saveVideo()">儲存</button>
+          <button class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let STATE = { notesRows: [], videosRows: [] };
+    const noteModal = new bootstrap.Modal(document.getElementById('noteModal'));
+    const videoModal = new bootstrap.Modal(document.getElementById('videoModal'));
+
+    // === Config =====================================================
+    function getApiUrl() { return localStorage.getItem("apiUrl") || ""; }
+    function getToken() { return localStorage.getItem("adminToken") || ""; }
+
+    function saveConfig() {
+      const url = document.getElementById("apiUrl").value.trim();
+      const token = document.getElementById("token").value.trim();
+      if (!url) return alert("請填 Web App URL（.../exec）");
+      localStorage.setItem("apiUrl", url);
+      localStorage.setItem("adminToken", token);
+      alert("✅ 已儲存設定");
+    }
+
+    // 首次載入把 localStorage 帶回 input
+    document.getElementById("apiUrl").value = getApiUrl();
+    document.getElementById("token").value = getToken();
+
+    // === API helper（直連版、避免 CORS preflight）=====================
+    async function api(action, payload = {}) {
+      const apiUrl = getApiUrl();
+      if (!apiUrl) throw new Error("Missing API URL");
+
+      // body 仍然是 JSON，但用 text/plain 送出 → 多數情況不會觸發 OPTIONS preflight
+      const body = { action, adminToken: getToken(), ...payload };
+
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(body),
+      });
+
+      // 如果不是 2xx，先把文字抓出來方便除錯
+      const text = await res.text();
+      try {
+        return JSON.parse(text);
+      } catch {
+        throw new Error("API 回傳不是 JSON：\n" + text.slice(0, 300));
+      }
+    }
+
+    /** 註解與用意：
+     * - 用 text/plain 送 JSON 字串，避免瀏覽器的 CORS preflight（OPTIONS）把你擋掉
+     * - 先用 res.text() 再 JSON.parse：就算 Apps Script 回 HTML/錯誤頁，也能看到內容
+     */
+
+
+    // === Load =======================================================
+    async function loadAll() {
+      try {
+        const r = await api("getAllExtended");
+        if (!r || r.ok === false) {
+          alert("載入失敗: " + (r?.error || "unknown"));
+          return;
+        }
+        STATE.notesRows = r.notesRows || [];
+        STATE.videosRows = r.videosRows || [];
+        renderNotes();
+        renderVideos();
+      } catch (err) {
+        console.error(err);
+        alert("❌ 連線失敗（多半是 CORS 或 WebApp 權限）\n\n" + (err?.message || err));
+      }
+    }
+
+    /** 註解與用意：
+     * - 任何 fetch 被瀏覽器擋掉（Failed to fetch）都會進 catch
+     * - 你就不會感覺「卡住」，而是會直接看到原因
+     */
+
+    // === Notes ======================================================
+    function renderNotes() {
+      const tb = document.getElementById("notesTbody");
+      const rows = [...STATE.notesRows].sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+      tb.innerHTML = rows.map(r => `
+      <tr>
+        <td class="mono">${r.rowId}</td>
+        <td class="mono">${escapeHtml(r.date)}</td>
+        <td>${escapeHtml(r.note)}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-secondary" onclick="editNote(${r.rowId})">編輯</button>
+          <button class="btn btn-sm btn-outline-danger" onclick="delNote(${r.rowId})">刪除</button>
+        </td>
+      </tr>
+    `).join("");
+    }
+
+    function openNoteModal(row = null) {
+      document.getElementById("noteRowId").value = row?.rowId || "";
+      // document.getElementById("noteDate").value = row?.date || "";
+      document.getElementById("noteDate").value = toYYYYMMDD(row?.date || "");
+      document.getElementById("noteText").value = row?.note || "";
+      document.getElementById("noteModalTitle").innerText = row?.rowId ? "編輯 Note" : "新增 Note";
+      noteModal.show();
+    }
+
+    function editNote(rowId) {
+      const row = STATE.notesRows.find(x => x.rowId === rowId);
+      if (!row) return alert("找不到 rowId=" + rowId);
+      openNoteModal(row);
+    }
+
+    async function saveNote() {
+      const rowId = document.getElementById("noteRowId").value.trim();
+      const date = document.getElementById("noteDate").value.trim();
+      const note = document.getElementById("noteText").value.trim();
+
+      let r;
+      if (rowId) r = await api("updateNoteRow", { rowId: Number(rowId), date, note });
+      else r = await api("addNoteRow", { date, note });
+
+      if (r.ok === false) return alert("儲存失敗: " + r.error);
+      await loadAll();
+      noteModal.hide();
+    }
+
+    async function delNote(rowId) {
+      if (!confirm("確定刪除 rowId=" + rowId + " ?")) return;
+      const r = await api("deleteNoteRow", { rowId });
+      if (r.ok === false) return alert("刪除失敗: " + r.error);
+      await loadAll();
+    }
+
+    // === Videos =====================================================
+    function renderVideos() {
+      const tb = document.getElementById("videosTbody");
+      const q = document.getElementById("q").value.trim().toLowerCase();
+      const f = document.getElementById("filterDate").value;
+
+      let list = [...STATE.videosRows];
+      if (f === "dated") list = list.filter(v => (v.date || "").trim() !== "");
+      if (f === "undated") list = list.filter(v => (v.date || "").trim() === "");
+      if (q) {
+        list = list.filter(v =>
+          (v.series || "").toLowerCase().includes(q) ||
+          (v.name || "").toLowerCase().includes(q) ||
+          (v.date || "").toLowerCase().includes(q) ||
+          (v.url || "").toLowerCase().includes(q)
+        );
+      }
+
+      tb.innerHTML = list.map(v => `
+      <tr>
+        <td class="mono">${v.rowId}</td>
+        <td class="mono">${escapeHtml(v.series)}</td>
+        <td>${escapeHtml(v.name)}</td>
+        <td class="mono">${escapeHtml(v.date)}</td>
+        <td class="mono small">${escapeHtml(v.url)}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-secondary" onclick="editVideo(${v.rowId})">編輯</button>
+          <button class="btn btn-sm btn-outline-danger" onclick="delVideo(${v.rowId})">刪除</button>
+        </td>
+      </tr>
+    `).join("");
+    }
+
+    function openVideoModal(row = null) {
+      document.getElementById("videoRowId").value = row?.rowId || "";
+      document.getElementById("videoSeries").value = row?.series || "";
+      document.getElementById("videoName").value = row?.name || "";
+      // document.getElementById("videoDate").value = row?.date || "";
+      document.getElementById("videoDate").value = toYYYYMMDD(row?.date || "");
+      document.getElementById("videoUrl").value = row?.url || "";
+      document.getElementById("videoModalTitle").innerText = row?.rowId ? "編輯影片" : "新增影片";
+      videoModal.show();
+    }
+
+    function editVideo(rowId) {
+      const row = STATE.videosRows.find(x => x.rowId === rowId);
+      if (!row) return alert("找不到 rowId=" + rowId);
+      openVideoModal(row);
+    }
+
+    async function saveVideo() {
+      const rowId = document.getElementById("videoRowId").value.trim();
+      const video = {
+        series: document.getElementById("videoSeries").value.trim(),
+        name: document.getElementById("videoName").value.trim(),
+        date: document.getElementById("videoDate").value.trim(),
+        url: document.getElementById("videoUrl").value.trim(),
+      };
+
+      let r;
+      if (rowId) r = await api("updateVideo", { rowId: Number(rowId), video });
+      else r = await api("addVideo", { video });
+
+      if (r.ok === false) return alert("儲存失敗: " + r.error);
+      await loadAll();
+      videoModal.hide();
+    }
+
+    async function delVideo(rowId) {
+      if (!confirm("確定刪除 rowId=" + rowId + " ?")) return;
+      const r = await api("deleteVideo", { rowId });
+      if (r.ok === false) return alert("刪除失敗: " + r.error);
+      await loadAll();
+    }
+
+    // === Import / Export ===========================================
+    function toggleImport() {
+      document.getElementById("importBox").classList.toggle("d-none");
+    }
+
+    async function exportJson() {
+      const apiUrl = getApiUrl();
+      if (!apiUrl) return alert("請先填 API URL");
+
+      const res = await fetch(apiUrl + "?action=export", { cache: "no-store" });
+      const data = await res.json();
+      const txt = JSON.stringify(data, null, 2);
+
+      navigator.clipboard.writeText(txt).then(() => alert("已複製 JSON 到剪貼簿"))
+        .catch(() => prompt("複製失敗，請手動複製：", txt));
+    }
+
+    async function doImportOverwrite() {
+      const txt = document.getElementById("importText").value.trim();
+      if (!txt) return alert("請貼上 JSON");
+      let data;
+      try { data = JSON.parse(txt); }
+      catch (e) { return alert("JSON 格式錯誤"); }
+
+      if (!confirm("這會覆蓋整份資料，確定匯入？")) return;
+      const r = await api("importJsonOverwrite", { data });
+      if (r.ok === false) return alert("匯入失敗: " + r.error);
+
+      document.getElementById("importText").value = "";
+      document.getElementById("importBox").classList.add("d-none");
+      await loadAll();
+    }
+
+    // === Utils ======================================================
+    function escapeHtml(s) {
+      return String(s ?? "").replace(/[&<>"']/g, m => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+      }[m]));
+    }
+
+    // 初始載入：若有 URL 就直接讀
+    if (getApiUrl()) loadAll();
+
+    /** =========================================================
+     * 註解與用意：
+     * - 這份 Admin.html 放在你的網域（GitHub Pages/自家主機/任意 domain）
+     * - 用 fetch 直接打 Apps Script Web App API 來 CRUD Google Sheet
+     * - URL/Token 存 localStorage：同事只要設定一次即可
+     * - 若你遇到 CORS 錯誤：把 api() 改成打你網域的 Proxy（看下方代理版）
+     * ========================================================= */
+
+    function toYYYYMMDD(input) {
+      if (!input) return "";
+
+      // 已經是 YYYY-MM-DD 就直接回傳
+      if (typeof input === "string" && /^\d{4}-\d{2}-\d{2}$/.test(input.trim())) {
+        return input.trim();
+      }
+
+      // 可能是 "Mon Jan 12 2026 00:00:00 GMT+0800 ..."
+      const dt = new Date(input);
+      if (isNaN(dt)) return String(input).trim(); // 解析失敗就原樣回傳（至少不會變空）
+
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth() + 1).padStart(2, "0");
+      const d = String(dt.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    /** 註解與用意：
+     * - 讓 Admin 編輯視窗的 date 一律顯示 YYYY-MM-DD
+     * - 不改 Sheet 原始型別（Sheet 仍可維持 Date 欄位）
+     * - 兼容：本來就是 YYYY-MM-DD 或是 Mon Jan... 這種字串
+     */
+
+
+
+  </script>
+</body>
+
+</html>
