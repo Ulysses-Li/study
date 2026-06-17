@@ -430,6 +430,7 @@
       selectedDate: toDateKey(today.getFullYear(), today.getMonth(), today.getDate()),
       videos: [],
       notes: [],
+      calendarVideos: [],
       filteredVideos: [],
       filteredNotes: [],
       byDate: {}
@@ -582,6 +583,13 @@
       });
     }
 
+    function getCalendarVideos() {
+      const queryText = document.getElementById("searchText").value.trim().toLowerCase();
+      const videos = state.videos.filter((video) => normalizeDateKey(video.date));
+      if (!queryText) return videos;
+      return videos.filter((video) => getVideoSearchText(video).includes(queryText));
+    }
+
     function getFilteredNotes() {
       const queryText = document.getElementById("searchText").value.trim().toLowerCase();
       if (!queryText) return [...state.notes];
@@ -591,7 +599,7 @@
     function groupByDate() {
       const output = {};
 
-      for (const video of state.filteredVideos) {
+      for (const video of state.calendarVideos) {
         const date = normalizeDateKey(video.date);
         if (!date) continue;
         (output[date] ||= { videos: [], notes: [] }).videos.push(video);
@@ -629,7 +637,7 @@
 
       const summary = parts.length ? parts.join(" / ") : "未套用篩選";
       const sameAsAll = state.filteredVideos.length === state.videos.length && parts.length > 0;
-      document.getElementById("filterSummary").innerHTML = `目前條件：<strong>${summary}</strong>，符合 <strong>${state.filteredVideos.length}</strong> / ${state.videos.length} 筆影片${sameAsAll ? "。目前資料都符合這個條件，所以列表不會變少。" : "。"}`;
+      document.getElementById("filterSummary").innerHTML = `目前條件：<strong>${summary}</strong>，下方清單符合 <strong>${state.filteredVideos.length}</strong> / ${state.videos.length} 筆影片${sameAsAll ? "。目前資料都符合這個條件，所以列表不會變少。" : "。"}月曆固定顯示所有有日期的影片紀錄。`;
     }
 
     function renderCalendar() {
@@ -802,6 +810,7 @@
     }
 
     function applyFiltersAndRender() {
+      state.calendarVideos = getCalendarVideos();
       state.filteredVideos = getFilteredVideos();
       state.filteredNotes = getFilteredNotes();
       groupByDate();

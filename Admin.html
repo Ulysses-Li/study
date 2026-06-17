@@ -127,6 +127,30 @@
       gap: 8px;
     }
 
+    .help-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .help-item {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .help-item:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .help-item-title {
+      font-weight: 700;
+    }
+
+    .help-item-body {
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
     .empty-row {
       color: var(--text-muted);
       text-align: center;
@@ -201,6 +225,7 @@
         <button id="importSampleBtn" class="btn btn-outline-primary" type="button">匯入範例資料</button>
         <button id="settingsBtn" class="btn btn-outline-secondary" type="button">儲存預設設定</button>
         <button id="completeDatedVideosBtn" class="btn btn-outline-primary" type="button">有日期設已完成</button>
+        <button id="helpBtn" class="btn btn-outline-secondary" type="button">F1 說明</button>
         <span id="importBadge" class="badge text-bg-secondary align-self-center">尚未匯入</span>
       </div>
 
@@ -396,6 +421,53 @@
     </div>
   </div>
 
+  <div class="modal fade" id="helpModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">工具列說明</h5>
+          <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-secondary">按 F1 可隨時開啟這份說明。這些按鈕主要處理資料同步、備份、匯入與批次整理。</p>
+          <div class="help-list">
+            <div class="help-item">
+              <div class="help-item-title">重新載入</div>
+              <div class="help-item-body">重新從 Firestore 讀取影片、筆記與設定。適合在另一個頁面剛修改資料後使用。</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">匯出 JSON</div>
+              <div class="help-item-body">把目前影片與筆記資料複製成 JSON 備份。剪貼簿不可用時會放到匯入文字框中。</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">匯入 JSON</div>
+              <div class="help-item-body">開啟 JSON 貼上區。按「匯入到 Firestore」後，會把 JSON 寫入 Firestore。</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">匯入範例資料</div>
+              <div class="help-item-body">把內建的 sample-import.json 匯入 Firestore。通常只在初始化或重建資料時使用。</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">儲存預設設定</div>
+              <div class="help-item-body">寫入預設網站設定，例如站名、主題與月曆起始日。</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">有日期設已完成</div>
+              <div class="help-item-body">批次把已有日期但尚未完成的影片改成已完成，並把進度設為 100%。執行前會再次確認。</div>
+            </div>
+            <div class="help-item">
+              <div class="help-item-title">尚未匯入 / 匯入狀態</div>
+              <div class="help-item-body">顯示最近一次匯入狀態，例如匯入中、完成或失敗。</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" data-bs-dismiss="modal" type="button">了解</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="toast-container position-fixed top-0 end-0 p-3">
     <div id="appToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="toast-header">
@@ -447,11 +519,16 @@
 
     const noteModal = new bootstrap.Modal(document.getElementById("noteModal"));
     const videoModal = new bootstrap.Modal(document.getElementById("videoModal"));
+    const helpModal = new bootstrap.Modal(document.getElementById("helpModal"));
     const toast = new bootstrap.Toast(document.getElementById("appToast"));
 
     function showToast(message) {
       document.getElementById("toastBody").textContent = message;
       toast.show();
+    }
+
+    function openHelpModal() {
+      helpModal.show();
     }
 
     function setBadge(id, text, theme = "secondary") {
@@ -904,6 +981,7 @@
     document.getElementById("importBtn").addEventListener("click", handleImportJson);
     document.getElementById("importSampleBtn").addEventListener("click", handleImportSampleJson);
     document.getElementById("completeDatedVideosBtn").addEventListener("click", completeDatedVideos);
+    document.getElementById("helpBtn").addEventListener("click", openHelpModal);
     document.getElementById("settingsBtn").addEventListener("click", async () => {
       try {
         await saveSettings({ siteName: "Louis Study Tracker", theme: "light", calendarStartDay: 1 });
@@ -972,6 +1050,12 @@
     document.getElementById("nextVideosPageBtn").addEventListener("click", () => {
       state.videoFilters.page += 1;
       renderVideos();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "F1") return;
+      event.preventDefault();
+      openHelpModal();
     });
 
     document.getElementById("notesTbody").addEventListener("click", async (event) => {
