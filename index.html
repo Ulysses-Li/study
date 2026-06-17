@@ -9,7 +9,22 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background: #f8f9fa;
+      background: #f6f7f9;
+      color: #1f2937;
+    }
+
+    .app-shell {
+      max-width: 1480px;
+    }
+
+    .summary-card {
+      min-height: 104px;
+      border-radius: 8px;
+    }
+
+    .summary-value {
+      font-size: 2rem;
+      line-height: 1;
     }
 
     .calendar {
@@ -18,27 +33,27 @@
 
     .calendar th,
     .calendar td {
-      min-width: 116px;
+      min-width: 112px;
       height: 126px;
       vertical-align: top;
     }
 
     .day-cell {
       cursor: pointer;
-      transition: background-color .15s ease;
+      transition: background-color .15s ease, outline-color .15s ease;
     }
 
     .day-cell:hover {
-      background: #f1f3f5;
+      background: #eef2f7;
     }
 
     .day-cell.is-selected {
-      outline: 3px solid #0d6efd;
+      outline: 3px solid #2563eb;
       outline-offset: -3px;
     }
 
     .today {
-      background: #fff3cd;
+      background: #fff7db;
     }
 
     .sun {
@@ -69,36 +84,39 @@
       color: #166534;
     }
 
-    .summary-card {
-      min-height: 104px;
-    }
-
-    .summary-value {
-      font-size: 2rem;
-      line-height: 1;
-    }
-
     .video-card {
       border-radius: 8px;
+    }
+
+    .progress {
+      background: #e5e7eb;
+    }
+
+    @media (max-width: 767.98px) {
+      .calendar th,
+      .calendar td {
+        min-width: 86px;
+        height: 104px;
+      }
     }
   </style>
 </head>
 
 <body>
-  <main class="container-fluid px-3 px-lg-4 py-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <main class="container-fluid app-shell px-3 px-lg-4 py-4">
+    <header class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
       <div>
         <h1 class="h3 mb-1">Louis Study Tracker</h1>
-        <p id="dataStatus" class="text-muted mb-0">資料載入中...</p>
+        <p id="dataStatus" class="text-muted mb-0">正在載入資料...</p>
       </div>
-      <a class="btn btn-outline-secondary" href="login.html">Admin</a>
-    </div>
+      <a class="btn btn-outline-secondary" href="login.html">管理後台</a>
+    </header>
 
     <section class="row g-3 mb-4" aria-label="學習統計">
       <div class="col-6 col-lg-3">
         <div class="card summary-card">
           <div class="card-body">
-            <div class="text-muted small">總影片數</div>
+            <div class="text-muted small">影片總數</div>
             <div id="totalVideosCount" class="summary-value fw-bold">0</div>
           </div>
         </div>
@@ -106,7 +124,7 @@
       <div class="col-6 col-lg-3">
         <div class="card summary-card">
           <div class="card-body">
-            <div class="text-muted small">完成影片數</div>
+            <div class="text-muted small">已完成影片</div>
             <div id="completedVideosCount" class="summary-value fw-bold text-success">0</div>
           </div>
         </div>
@@ -114,7 +132,7 @@
       <div class="col-6 col-lg-3">
         <div class="card summary-card">
           <div class="card-body">
-            <div class="text-muted small">本月影片數</div>
+            <div class="text-muted small">本月影片</div>
             <div id="monthVideosCount" class="summary-value fw-bold text-primary">0</div>
           </div>
         </div>
@@ -129,7 +147,7 @@
       </div>
     </section>
 
-    <section class="card mb-4">
+    <section class="card mb-4" aria-label="篩選條件">
       <div class="card-body">
         <div class="row g-2">
           <div class="col-12 col-lg-6">
@@ -146,7 +164,7 @@
           <div class="col-12 col-sm-6 col-lg-3">
             <select id="dateFilter" class="form-select">
               <option value="all">全部日期</option>
-              <option value="dated">有日期</option>
+              <option value="dated">已有日期</option>
               <option value="undated">未排日期</option>
             </select>
           </div>
@@ -208,7 +226,7 @@
     <section class="card mt-4">
       <div class="card-body">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-          <h2 class="h5 mb-0">搜尋結果</h2>
+          <h2 class="h5 mb-0">影片清單</h2>
           <span id="resultCount" class="text-muted small"></span>
         </div>
         <div id="filteredVideosList" class="row g-3"></div>
@@ -272,6 +290,12 @@
       return toDateKey(date.getFullYear(), date.getMonth(), date.getDate());
     }
 
+    function clampPercent(value) {
+      const number = Number(value || 0);
+      if (!Number.isFinite(number)) return 0;
+      return Math.min(100, Math.max(0, number));
+    }
+
     function normalizeToWatchUrl(url) {
       const text = String(url || "");
       const embedMatch = text.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/);
@@ -280,7 +304,7 @@
       const shortMatch = text.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
       if (shortMatch) return `https://www.youtube.com/watch?v=${shortMatch[1]}`;
 
-      return text;
+      return text || "#";
     }
 
     function getVideoTitle(video) {
@@ -345,21 +369,6 @@
       state.byDate = output;
     }
 
-    /**
-     * 更新學習統計。
-     *
-     * 輸入：
-     * Firestore videos、notes
-     *
-     * 輸出：
-     * 統計卡片數字
-     *
-     * 流程：
-     * 1. 計算總影片
-     * 2. 計算 completed 影片
-     * 3. 計算目前月份影片
-     * 4. 計算筆記數量
-     */
     function renderStats() {
       const monthPrefix = getSelectedMonthPrefix();
       const monthVideos = state.videos.filter((video) => normalizeDateKey(video.date).startsWith(monthPrefix));
@@ -423,35 +432,18 @@
         return;
       }
 
-      target.innerHTML = videos.map((video) => `
-        <div class="card video-card h-100">
-          <div class="card-body">
-            <div class="d-flex justify-content-between gap-2">
-              <h3 class="h6 mb-1">${escapeHtml(getVideoTitle(video))}</h3>
-              <span class="badge text-bg-secondary">${escapeHtml(video.status || "planned")}</span>
-            </div>
-            <div class="small text-muted mb-2">${escapeHtml(video.series || "未分類")} ${video.category ? `| ${escapeHtml(video.category)}` : ""}</div>
-            <div class="progress mb-2" style="height: 8px;">
-              <div class="progress-bar" style="width: ${Number(video.progress || 0)}%;"></div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center gap-2">
-              <span class="small text-muted">${escapeHtml(normalizeDateKey(video.date) || "未排日期")}</span>
-              <a class="btn btn-sm btn-outline-primary" href="${escapeHtml(normalizeToWatchUrl(video.url))}" target="_blank" rel="noopener">開啟影片</a>
-            </div>
-          </div>
-        </div>
-      `).join("");
+      target.innerHTML = videos.map((video) => renderVideoCardHtml(video)).join("");
     }
 
     function renderDayPanel() {
       const group = state.byDate[state.selectedDate] || { videos: [], notes: [] };
       document.getElementById("selectedDateTitle").textContent = `${state.selectedDate} 影片`;
 
-      renderVideoList("dayVideosList", group.videos, "當日沒有符合條件的影片。");
+      renderVideoList("dayVideosList", group.videos, "這一天還沒有安排影片。");
 
       const notesTarget = document.getElementById("dayNotesList");
       if (!group.notes.length) {
-        notesTarget.innerHTML = '<div class="alert alert-light border mb-0">當日沒有符合條件的筆記。</div>';
+        notesTarget.innerHTML = '<div class="alert alert-light border mb-0">這一天還沒有筆記。</div>';
         return;
       }
 
@@ -466,10 +458,10 @@
 
     function renderFilteredResults() {
       const target = document.getElementById("filteredVideosList");
-      document.getElementById("resultCount").textContent = `${state.filteredVideos.length} 部影片`;
+      document.getElementById("resultCount").textContent = `${state.filteredVideos.length} 筆影片`;
 
       if (!state.filteredVideos.length) {
-        target.innerHTML = '<div class="col-12"><div class="alert alert-light border mb-0">沒有符合搜尋或篩選條件的影片。</div></div>';
+        target.innerHTML = '<div class="col-12"><div class="alert alert-light border mb-0">沒有符合條件的影片。</div></div>';
         return;
       }
 
@@ -481,6 +473,8 @@
     }
 
     function renderVideoCardHtml(video) {
+      const progress = clampPercent(video.progress);
+
       return `
         <div class="card video-card h-100">
           <div class="card-body">
@@ -488,11 +482,14 @@
               <h3 class="h6 mb-1">${escapeHtml(getVideoTitle(video))}</h3>
               <span class="badge text-bg-secondary">${escapeHtml(video.status || "planned")}</span>
             </div>
-            <div class="small text-muted mb-2">${escapeHtml(video.series || "未分類")} ${video.category ? `| ${escapeHtml(video.category)}` : ""}</div>
+            <div class="small text-muted mb-2">${escapeHtml(video.series || "未分類系列")}${video.category ? ` | ${escapeHtml(video.category)}` : ""}</div>
             <p class="small mb-2">${escapeHtml(video.note || "")}</p>
+            <div class="progress mb-2" style="height: 8px;">
+              <div class="progress-bar" style="width: ${progress}%;"></div>
+            </div>
             <div class="d-flex justify-content-between align-items-center gap-2">
               <span class="small text-muted">${escapeHtml(normalizeDateKey(video.date) || "未排日期")}</span>
-              <a class="btn btn-sm btn-outline-primary" href="${escapeHtml(normalizeToWatchUrl(video.url))}" target="_blank" rel="noopener">開啟影片</a>
+              <a class="btn btn-sm btn-outline-primary" href="${escapeHtml(normalizeToWatchUrl(video.url))}" target="_blank" rel="noopener">觀看</a>
             </div>
           </div>
         </div>
@@ -517,11 +514,11 @@
         applyFiltersAndRender();
 
         const fromCache = videoResult.fromCache || noteResult.fromCache;
-        document.getElementById("dataStatus").textContent = fromCache ? "使用 localStorage 快取資料。" : "資料來自 Firestore。";
-        if (fromCache) showToast("Firestore 讀取失敗，已改用 localStorage 快取。");
+        document.getElementById("dataStatus").textContent = fromCache ? "正在使用本機快取資料" : "資料已同步 Firestore";
+        if (fromCache) showToast("Firestore 暫時無法讀取，已改用本機快取或範例資料。");
       } catch (error) {
-        console.error("首頁資料初始化失敗", error);
-        showToast("資料載入失敗，請稍後再試。");
+        console.error("資料載入失敗", error);
+        showToast("資料載入失敗，請檢查 Firebase 設定。");
       }
     }
 

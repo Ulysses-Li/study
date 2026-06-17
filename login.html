@@ -15,7 +15,7 @@
         <div class="card shadow-sm">
           <div class="card-body p-4">
             <h1 class="h4 mb-1">Admin Login</h1>
-            <p class="text-muted mb-4">請登入後管理學習資料。</p>
+            <p class="text-muted mb-4">登入後可以管理學習影片與筆記。</p>
 
             <form id="loginForm">
               <div class="mb-3">
@@ -30,7 +30,7 @@
             </form>
 
             <div class="d-grid mt-3">
-              <a class="btn btn-outline-secondary" href="index.html">回首頁</a>
+              <a class="btn btn-outline-secondary" href="index.html">回前台</a>
             </div>
           </div>
         </div>
@@ -61,20 +61,6 @@
       toast.show();
     }
 
-    /**
-     * 檢查既有登入狀態。
-     *
-     * 輸入：
-     * 無
-     *
-     * 輸出：
-     * 依登入狀態導向頁面
-     *
-     * 流程：
-     * 1. 等待 Firebase Auth
-     * 2. 已登入 Admin 時前往 Admin.html
-     * 3. 已登入非 Admin 時前往 index.html
-     */
     async function redirectIfSignedIn() {
       try {
         const user = await waitForAuthUser();
@@ -82,8 +68,8 @@
 
         window.location.href = isAdminUser(user) ? "Admin.html" : "index.html";
       } catch (error) {
-        console.error("檢查登入狀態失敗", error);
-        showToast("登入狀態檢查失敗，請稍後再試。");
+        console.error("登入狀態檢查失敗", error);
+        showToast("登入狀態檢查失敗，請重新整理頁面。");
       }
     }
 
@@ -97,7 +83,7 @@
         const user = await loginWithEmail(email, password);
 
         if (!isAdminUser(user)) {
-          showToast("此帳號沒有 Admin 權限。");
+          showToast("這個帳號不是 Admin。");
           window.location.href = "index.html";
           return;
         }
@@ -106,7 +92,7 @@
         window.location.href = "Admin.html";
       } catch (error) {
         console.error("Firebase Authentication 登入失敗", error);
-        showToast("登入失敗，請確認 Email / Password。");
+        showToast("登入失敗，請檢查 Email / Password。");
       } finally {
         loginButton.disabled = false;
       }

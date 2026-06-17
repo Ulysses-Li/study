@@ -1,40 +1,1036 @@
 {
   "videos": [
     {
-      "title": "Firebase Firestore 基礎教學",
-      "series": "Firebase",
-      "category": "Backend",
-      "url": "https://www.youtube.com/watch?v=example",
-      "date": "2026-06-17",
+      "title": "Most Shops Don’t Use Tool Holders the Same Way",
+      "series": "1",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/z4_EGRBNhGc?si=azr1vtaUmLL8chpT",
+      "date": "2026-01-05",
       "status": "planned",
       "progress": 0,
-      "duration": 30,
-      "tags": ["Firebase", "Firestore"],
-      "note": "先理解 collection / document / field"
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
     },
     {
-      "title": "Bootstrap 5 Grid 教學",
-      "series": "Bootstrap",
-      "category": "Frontend",
-      "url": "https://www.youtube.com/watch?v=example2",
-      "date": "2026-06-18",
-      "status": "watching",
-      "progress": 40,
-      "duration": 25,
-      "tags": ["Bootstrap", "Grid", "CSS"],
-      "note": "練習 row / col / container"
+      "title": "Unboxing the INSANE Göltenbodt Tooling System",
+      "series": "2",
+      "category": "CNC / Manufacturing",
+      "url": "https://www.youtube.com/embed/CTO734Y5eEU",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "ISCAR TECH-TALK - WHISPERLINE Anti-Vibration Holder",
+      "series": "3",
+      "category": "CNC / Manufacturing",
+      "url": "https://www.youtube.com/embed/HREEbCnDXWM?start",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "ISCAR TECH-TALK - CUT-V-GRIP Multi-Functional V-Shape Inserts",
+      "series": "4",
+      "category": "CNC / Manufacturing",
+      "url": "https://www.youtube.com/embed/Oag-AwSQDgY",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "Aircraft Camera Mount - Machining",
+      "series": "5",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/EDFEOYW0MFY?si=iiEMtAaGUvhBhMQl",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "HoCNC Milling Job Shop Work – Custom Dovetail Fixturing for High Production",
+      "series": "6",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/q7zEOxLzx4U?si=o7eZotMF83Euz1uD",
+      "date": "2026-01-19",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "CNC Milling Job Shop Work - Prototype Time!",
+      "series": "7",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/y5m2sUdnP6E?si=JnszM4Ca_pE_OnRI",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "Comparing Tool Holders: Nut and Collet, Hydraulic Clamping, Thermogrip, and Hydraulic Press Fit.",
+      "series": "8",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/pNIL2D3W3TY?si=xTwR-kC8_ghbxFU1",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "How to choose the right tool holder for your CNC Machine | DN Solutions",
+      "series": "9",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/n2J1Wlfw-Dw?si=ADCU3Lnu3jxJz0Ei",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "ER Collet Essentials. Do You Know? – Haas Automation Tip of the Day",
+      "series": "10",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/WKikm6cQKh0?si=7SnNfSqI2b2_G5-C",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "CNC Machining an aluminum part | Hermle C400 | SolidCAM | iMachining",
+      "series": "11",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/Djb-Akfz21g?si=Uyn1P7Nns4X84tCh",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "CNC Milling Job Shop Work - Evicting Some Serious Metal From A Housing",
+      "series": "12",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/5L8dQr3GUM0?si=5VYWJ3oz0fpITU12",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "Feed Adjustments",
+      "series": "13",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/Cdv0TJXl928?si=nxZGkOw0au4EQ0fC",
+      "date": "2026-01-26",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "Chip Thinning & High-Feed Machining",
+      "series": "14",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/hBQRAclNSuo?si=aAvLltnbBsO4ap6I",
+      "date": "2026-06-08",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "CNC Drilling & Spotting: Pro Techniques",
+      "series": "15",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/rEnvGdy_zzE?si=G1uOgk-bApTIO394",
+      "date": "2026-01-26",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "3 Tools 3 Strategies 3 Results | Swarf vs. Barrel vs. Ball",
+      "series": "16",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/8sjAFeJQpLY?si=tfKs91XG578S7NGf",
+      "date": "2026-03-09",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "20年經驗職人 vs AI 科技！決定人類命運の加工對決！",
+      "series": "17",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/ZF7z_D0r7JE?si=o1spsou3gqFl22gJ",
+      "date": "2026-02-02",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "看不見的「公差」，精品的關鍵！一口氣了解尺寸公差、幾何公差、配合公差",
+      "series": "18",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/6FB3MYw5w4E?si=1OCRYtwSwKGykmz-",
+      "date": "2026-02-02",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "Understanding GD&T",
+      "series": "19",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/G7wnGeR_69k?si=2OTp2M9PnxSxN59W",
+      "date": "2026-03-02",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "Holier than Thou: Precision Holes by Drilling, Boring, and Reaming",
+      "series": "20",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/Qs_kXVsTQPE?si=zEOT-Ew8oV6by_nO",
+      "date": "2026-05-11",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "How to Design Parts for CNC Machining",
+      "series": "21",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/qx_qqVmjCc0?si=ao1WMlu65SYl6QaW",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "CNC machines - The Types of CNC Machines Explained (3 and 5 axis)",
+      "series": "22",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/mdRTq2_qI9Y?si=CzG1gFlnI4-_bcOY",
+      "date": "2026-06-01",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "5-Axis VERSUS 3-Axis - Which Would You Choose? UMC-500SS or VF-4SS - Haas Automation, Inc.",
+      "series": "23",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/oFvBe7cqxOE?si=ZNbPRmTP3ikWCBcW",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "Poor Man’s Anti-Vibration Boring Bar Holder– Cutting Down on Resonance!",
+      "series": "24",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/lRb1z9edaYU?si=lHgoy9r6yz68rJq3",
+      "date": "2026-02-09",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "快速搞懂齒輪！這 8 種你都該認識",
+      "series": "25",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/o4qY2HVwBJM?si=RJ2OLLRwuy4648Y2",
+      "date": "2026-02-02",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "How I Set Up a Swiss Lathe for a Real Production Job | The Lathe Lab Ep.15",
+      "series": "26",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/sFdzjVHg3AA?si=EbcHy5Y754iLW1Wa",
+      "date": "2026-03-23",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "続々登場！出来ない…が出来る!に変わる工具！　マンヨーツール",
+      "series": "27",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/lO5tQhhGxPQ?si=F0kqs45_lRrf9haL",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "CNC fail compilation – lessons in every crash. (懂加工看到都會嚇到的影片)",
+      "series": "28",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/LIDmjodj_oQ?si=e0B-bqOimcjwuYCc",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "認識CNC基礎教學!開箱德國上億元神獸級CNC！ 台中精機【隱形工廠】What's CNC?",
+      "series": "29",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/KZ0lIzlYHw4?si=CVNPoUqsHyaeNBKb",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "SY2-42E / Swiss-type / 走心式車床",
+      "series": "30",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/cxrU0N7TxAU?si=0fIAg-0eOs9jWz5P",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "CITIZEN Cincom L20-XII with ATC (Automatic Tool Changer) www.citizenmachinery.co.uk",
+      "series": "31",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/H4FujlzFNfI?si=09V_aq347NFtgdfl",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "Making a Chessboard with Chess Pieces - CNC Milling and Turning - Machining",
+      "series": "32",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/7iKmTnZvA34?si=O30rHvcVDIDLu7rn",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "到瑞士拍手錶工廠 機械錶製作曝光 你從沒想過的真實製造過程 我們全拍到了！【超認真少年】Switzerland Watch & Tourbillon Factory Horage",
+      "series": "33",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/sWyxd79_zrE?si=MggxT5zx1ARQej1t",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "驚人的鑄造技術！八旬匠人累積的技藝",
+      "series": "34",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/BIO2cWTA2oM?si=Myo8G6NVPwqnnPp_",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "批量生產活塞零件的製程。在日本用 6000 噸壓力機鍛造曲軸",
+      "series": "35",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/4NTKbSLObM8?si=xUMyNR-IcZh9y9kR",
+      "date": "2026-03-09",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "米速、進給、順銑、逆銑的說明",
+      "series": "36",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/O1V-xrBBthg?si=npJuSErL7Dyt3RJ-",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "公制牙的精度表示及刀具選擇_(I)",
+      "series": "37",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/3ABxfvSFplY?si=SoJDU-Xs1vsXT2Hy",
+      "date": "2026-04-13",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "公制牙的精度表示及刀具選擇_(II)",
+      "series": "38",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/zdLiKGoRCVY?si=DBrHFdo6eP_H5w5W",
+      "date": "2026-04-20",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "英制牙說明-管牙",
+      "series": "39",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/2lfEvhbSjGc?si=Om8DOSN0qbJqK8bv",
+      "date": "2026-04-20",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "英制牙說明-統一牙(UN)",
+      "series": "40",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/my34zEcnEcw?si=spHtZJmSwk7KoHxj",
+      "date": "2026-05-04",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "Threads and tolerances, calculating diameters and pitch diameter offset",
+      "series": "41",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/wjwgINFZf7Y?si=9omeD9WMcmEUrSp5",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "END CHATTER! New Anti-Vibration Boring Bars at HaasTooling.com - Haas Automation, Inc.",
+      "series": "Scott",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/F5YwMnUVGOs?si=EiLvIKbzDf7kJkPn",
+      "date": "2026-03-09",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "【球刀切削的真相】深入了解球刀加工，切線速度的迷思與真相，從下往上銑#cncmachining #cam #tools #solidcam #solidworks #imachining #參數公式",
+      "series": "Owen",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/yQmVNrP4JyI?si=Ewu7f5bLkVuE0Lk7",
+      "date": "2026-03-09",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "How I Set Up a Swiss Lathe for a Real Production Job | The Lathe Lab Ep.15",
+      "series": "42",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/sFdzjVHg3AA?si=KogHRAkR-5U5cQ9B",
+      "date": "2026-03-30",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "加工不鏽鋼老是積屑、斷刀？5分鐘破解不鏽鋼加工密碼！｜專業刀具解決方案",
+      "series": "43",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/cRpiYIi642E?si=XDxKR8mUvuN487_6",
+      "date": "2026-05-18",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "不鏽鋼有智商稅？201、304、316、430 差在哪？真的不會生鏽？",
+      "series": "44",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/qhcWk8mFz7c?si=b9QLbc-yI1qHJQbb",
+      "date": "2026-05-18",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "Walter Tech Talk: Walter GPS - From Search to Smart Choice",
+      "series": "45",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/9PnUM6LsYWY?si=jsjwS1OfzV5-KjYp",
+      "date": "2026-05-25",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "CNC machining - What is it and How Does it Work? (Must Know Basics)",
+      "series": "46",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/lEyNWtM6MW4?si=HcUk1OzkN2j5OWqV",
+      "date": "2026-06-15",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "CNC Machining - How to Design Parts for CNC Machining",
+      "series": "47",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/6FOfXN9eWgg?si=StL8K8lpjSAIdkYs",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "CNC machining - Reducing Costs (14 tips)",
+      "series": "48",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/rjt9T75i8SI?si=4ZC7reWEuR7PonZ5",
+      "date": "2026-06-15",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "Thread Milling Advantage (13): Make Thread Diameter Correction Possible",
+      "series": "49",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/R28XNlAYx2E?si=81T5lrsL3CaplxIe",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "The LAST time you will ever have to program a thread! | Thread milling macro",
+      "series": "50",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/MrIOWaCoTWg?si=79UdwK0jMyLy-hTm",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "System 304: Thread Milling of 8 mm (.315\\\") Diameter Holes",
+      "series": "51",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/VsoxM2yoN-4?si=Ek774xGI2aJQqZz5",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "Horn Online W&F Micro",
+      "series": "52",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/0X2YDnH91Qw?si=96AdwjTvhqNDEZGq",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "High Feed Milling Explained",
+      "series": "53",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/dwdpirFGMwQ?si=Wl-FUJivfXFM_wFH",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
+    },
+    {
+      "title": "We Increased ONE Setting and Everything Changed",
+      "series": "54",
+      "category": "CNC / Manufacturing",
+      "url": "https://youtu.be/Ncb_uFTIMhY?si=_YckUJrUw01D3OmD",
+      "date": "",
+      "status": "planned",
+      "progress": 0,
+      "duration": 0,
+      "tags": [
+        "Legacy",
+        "CNC"
+      ],
+      "note": "Imported from legacy VIDEO_DB."
     }
   ],
   "notes": [
     {
-      "date": "2026-06-17",
-      "title": "Firebase 筆記",
-      "content": "今天完成 Firestore 資料結構設計。"
+      "date": "2026-04-03",
+      "title": "舊版日曆備註",
+      "content": "兒童節（補假）"
+    },
+    {
+      "date": "2026-12-25",
+      "title": "舊版日曆備註",
+      "content": "行憲紀念日"
+    },
+    {
+      "date": "2026-02-20",
+      "title": "舊版日曆備註",
+      "content": "春節假日（初四）"
+    },
+    {
+      "date": "2026-02-27",
+      "title": "舊版日曆備註",
+      "content": "和平紀念日（補假）"
+    },
+    {
+      "date": "2026-01-02",
+      "title": "舊版日曆備註",
+      "content": "公司假期"
+    },
+    {
+      "date": "2026-06-19",
+      "title": "舊版日曆備註",
+      "content": "端午節"
+    },
+    {
+      "date": "2026-03-13",
+      "title": "舊版日曆備註",
+      "content": "IOS_14001_外稽"
+    },
+    {
+      "date": "2026-05-01",
+      "title": "舊版日曆備註",
+      "content": "勞動節"
+    },
+    {
+      "date": "2026-10-09",
+      "title": "舊版日曆備註",
+      "content": "國慶日（補假）／光復節（補假）"
+    },
+    {
+      "date": "2026-09-25",
+      "title": "舊版日曆備註",
+      "content": "中秋節"
+    },
+    {
+      "date": "2026-04-06",
+      "title": "舊版日曆備註",
+      "content": "清明節"
+    },
+    {
+      "date": "2026-04-27",
+      "title": "舊版日曆備註",
+      "content": "Louis 補休"
+    },
+    {
+      "date": "2026-12-28",
+      "title": "舊版日曆備註",
+      "content": "盤點及內稽（休息）"
+    },
+    {
+      "date": "2026-02-16",
+      "title": "舊版日曆備註",
+      "content": "春節假日（除夕）"
+    },
+    {
+      "date": "2026-02-23",
+      "title": "舊版日曆備註",
+      "content": "開工大吉！"
+    },
+    {
+      "date": "2026-01-12",
+      "title": "舊版日曆備註",
+      "content": "Q4季會（休息）"
+    },
+    {
+      "date": "2026-07-13",
+      "title": "舊版日曆備註",
+      "content": "Q2季會（休息）"
+    },
+    {
+      "date": "2026-06-15",
+      "title": "舊版日曆備註",
+      "content": "Rocky 回來啦~"
+    },
+    {
+      "date": "2026-06-22",
+      "title": "舊版日曆備註",
+      "content": "Louis 補休"
+    },
+    {
+      "date": "2026-06-29",
+      "title": "舊版日曆備註",
+      "content": "盤點及內稽（休息）"
+    },
+    {
+      "date": "2026-03-16",
+      "title": "舊版日曆備註",
+      "content": "IOS_9001_外稽"
+    },
+    {
+      "date": "2026-10-12",
+      "title": "舊版日曆備註",
+      "content": "Q3季會（休息）"
+    },
+    {
+      "date": "2026-09-28",
+      "title": "舊版日曆備註",
+      "content": "教師節"
+    },
+    {
+      "date": "2026-02-14",
+      "title": "舊版日曆備註",
+      "content": "春節假日"
+    },
+    {
+      "date": "2026-02-21",
+      "title": "舊版日曆備註",
+      "content": "春節假日（初五）"
+    },
+    {
+      "date": "2026-02-15",
+      "title": "舊版日曆備註",
+      "content": "春節假日"
+    },
+    {
+      "date": "2026-02-22",
+      "title": "舊版日曆備註",
+      "content": "春節假日（初六）"
+    },
+    {
+      "date": "2026-04-30",
+      "title": "舊版日曆備註",
+      "content": "Louis 補休"
+    },
+    {
+      "date": "2026-02-19",
+      "title": "舊版日曆備註",
+      "content": "春節假日（初三）"
+    },
+    {
+      "date": "2026-01-01",
+      "title": "舊版日曆備註",
+      "content": "元旦假期"
     },
     {
       "date": "2026-06-18",
-      "title": "Bootstrap 筆記",
-      "content": "Grid 系統要注意 container、row、col 的層級。"
+      "title": "舊版日曆備註",
+      "content": "Louis 補休"
+    },
+    {
+      "date": "2026-04-28",
+      "title": "舊版日曆備註",
+      "content": "Louis 補休"
+    },
+    {
+      "date": "2026-12-29",
+      "title": "舊版日曆備註",
+      "content": "盤點及內稽（休息）"
+    },
+    {
+      "date": "2026-02-17",
+      "title": "舊版日曆備註",
+      "content": "春節假日（初一）"
+    },
+    {
+      "date": "2026-06-30",
+      "title": "舊版日曆備註",
+      "content": "盤點及內稽（休息）"
+    },
+    {
+      "date": "2026-04-08",
+      "title": "舊版日曆備註",
+      "content": "Q1季會（休息）"
+    },
+    {
+      "date": "2026-04-29",
+      "title": "舊版日曆備註",
+      "content": "Louis 補休"
+    },
+    {
+      "date": "2026-02-18",
+      "title": "舊版日曆備註",
+      "content": "春節假日（初二）"
     }
   ]
 }
