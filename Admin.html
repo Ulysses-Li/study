@@ -121,6 +121,24 @@
       font-size: .9rem;
     }
 
+    .section-note {
+      color: var(--text-muted);
+      font-size: .88rem;
+      line-height: 1.5;
+    }
+
+    .id-cell {
+      display: grid;
+      gap: 3px;
+    }
+
+    .id-source {
+      color: var(--text-muted);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: .78rem;
+      font-weight: 600;
+    }
+
     .pager {
       display: flex;
       align-items: center;
@@ -309,6 +327,10 @@
         width: 100%;
       }
 
+      .id-cell {
+        gap: 2px;
+      }
+
       .modal-dialog {
         margin: 10px;
       }
@@ -408,7 +430,10 @@
 
     <section class="panel p-3 mb-4">
       <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-        <h2 class="h5 mb-0">日期筆記</h2>
+        <div>
+          <h2 class="h5 mb-1">日期筆記</h2>
+          <p class="section-note mb-0">ID 只是資料庫文件名稱：匯入資料會用固定規則產生，手動新增會由 Firestore 自動產生隨機 ID。</p>
+        </div>
         <button id="addNoteBtn" class="btn btn-sm btn-outline-primary" type="button">新增筆記</button>
       </div>
       <div class="notes-toolbar mb-3">
@@ -665,6 +690,10 @@
               <div class="help-item-title">尚未匯入 / 匯入狀態</div>
               <div class="help-item-body">顯示最近一次匯入狀態，例如匯入中、完成或失敗。</div>
             </div>
+            <div class="help-item">
+              <div class="help-item-title">ID 來源</div>
+              <div class="help-item-body">匯入資料會用內容產生固定 ID，例如 note-2026-03-16-ios-9001-20；手動新增資料則由 Firestore 產生隨機 ID。ID 是資料庫識別用，不影響日期或筆記內容。</div>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -815,6 +844,13 @@
       return note.content || note.note || note.title || "";
     }
 
+    function getIdSourceLabel(type, id) {
+      const text = String(id || "");
+      if (!text) return "尚未建立";
+      if (text.startsWith(`${type}-`)) return "匯入固定 ID";
+      return "Firestore 自動 ID";
+    }
+
     function getNoteSearchText(note) {
       return [note.id, note.date, note.title, note.content, note.note].join(" ").toLowerCase();
     }
@@ -873,7 +909,12 @@
 
       tbody.innerHTML = pageRows.map((note, index) => `
         <tr>
-          <td class="mono" data-label="ID">${escapeHtml(note.rowId || note.id || startIndex + index + 1)}</td>
+          <td class="mono" data-label="ID">
+            <span class="id-cell">
+              <span>${escapeHtml(note.rowId || note.id || startIndex + index + 1)}</span>
+              <span class="id-source">${escapeHtml(getIdSourceLabel("note", note.id))}</span>
+            </span>
+          </td>
           <td class="mono" data-label="日期">${escapeHtml(note.date || "")}</td>
           <td class="truncate-cell" data-label="筆記" title="${escapeHtml(getNoteText(note))}">${escapeHtml(getNoteText(note))}</td>
           <td class="row-actions" data-label="操作">
