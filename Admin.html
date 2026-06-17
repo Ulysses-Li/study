@@ -104,12 +104,37 @@
       gap: 10px;
     }
 
+    .notes-toolbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) minmax(150px, 200px) minmax(120px, 160px);
+      gap: 10px;
+    }
+
+    .videos-toolbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) minmax(150px, 190px) minmax(150px, 190px) minmax(130px, 170px);
+      gap: 10px;
+    }
+
+    .table-meta {
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    .pager {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .empty-row {
       color: var(--text-muted);
       text-align: center;
     }
 
     @media (max-width: 768px) {
+      .notes-toolbar,
+      .videos-toolbar,
       .toolbar-grid {
         grid-template-columns: 1fr;
       }
@@ -193,6 +218,17 @@
         <h2 class="h5 mb-0">日期筆記</h2>
         <button id="addNoteBtn" class="btn btn-sm btn-outline-primary" type="button">新增筆記</button>
       </div>
+      <div class="notes-toolbar mb-3">
+        <input id="noteSearchText" class="form-control" placeholder="搜尋日期 / 標題 / 筆記">
+        <select id="noteMonthFilter" class="form-select" aria-label="筆記月份篩選">
+          <option value="all">所有月份</option>
+        </select>
+        <select id="notePageSize" class="form-select" aria-label="每頁筆數">
+          <option value="10">每頁 10 筆</option>
+          <option value="20" selected>每頁 20 筆</option>
+          <option value="50">每頁 50 筆</option>
+        </select>
+      </div>
       <div class="table-responsive">
         <table class="table table-sm align-middle">
           <thead>
@@ -206,6 +242,14 @@
           <tbody id="notesTbody"></tbody>
         </table>
       </div>
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+        <span id="notesTableMeta" class="table-meta"></span>
+        <div class="pager">
+          <button id="prevNotesPageBtn" class="btn btn-sm btn-outline-secondary" type="button">上一頁</button>
+          <span id="notesPageLabel" class="table-meta"></span>
+          <button id="nextNotesPageBtn" class="btn btn-sm btn-outline-secondary" type="button">下一頁</button>
+        </div>
+      </div>
     </section>
 
     <section class="panel p-3 mb-4">
@@ -214,8 +258,11 @@
         <button id="addVideoBtn" class="btn btn-sm btn-outline-primary" type="button">新增影片</button>
       </div>
 
-      <div class="toolbar-grid mb-3">
+      <div class="videos-toolbar mb-3">
         <input id="searchText" class="form-control" placeholder="搜尋系列 / 標題 / 分類 / 日期">
+        <select id="categoryFilter" class="form-select" aria-label="分類篩選">
+          <option value="all">所有分類</option>
+        </select>
         <select id="dateFilter" class="form-select" aria-label="日期篩選">
           <option value="all">所有日期</option>
           <option value="dated">已有日期</option>
@@ -226,6 +273,11 @@
           <option value="planned">待安排</option>
           <option value="watching">進行中</option>
           <option value="completed">已完成</option>
+        </select>
+        <select id="videoPageSize" class="form-select" aria-label="影片每頁筆數">
+          <option value="10">每頁 10 筆</option>
+          <option value="20" selected>每頁 20 筆</option>
+          <option value="50">每頁 50 筆</option>
         </select>
       </div>
 
@@ -243,6 +295,14 @@
           </thead>
           <tbody id="videosTbody"></tbody>
         </table>
+      </div>
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+        <span id="videosTableMeta" class="table-meta"></span>
+        <div class="pager">
+          <button id="prevVideosPageBtn" class="btn btn-sm btn-outline-secondary" type="button">上一頁</button>
+          <span id="videosPageLabel" class="table-meta"></span>
+          <button id="nextVideosPageBtn" class="btn btn-sm btn-outline-secondary" type="button">下一頁</button>
+        </div>
       </div>
     </section>
   </main>
@@ -367,7 +427,21 @@
       videos: [],
       notes: [],
       settings: [],
-      fromCache: false
+      fromCache: false,
+      noteFilters: {
+        searchText: "",
+        month: "all",
+        page: 1,
+        pageSize: 20
+      },
+      videoFilters: {
+        searchText: "",
+        category: "all",
+        date: "all",
+        status: "all",
+        page: 1,
+        pageSize: 20
+      }
     };
 
     const noteModal = new bootstrap.Modal(document.getElementById("noteModal"));
@@ -427,6 +501,10 @@
       }[status] || status || "待安排";
     }
 
+    function getVideoCategory(video) {
+      return String(video.category || "未分類").trim() || "未分類";
+    }
+
     function renderDashboard() {
       const totalVideos = state.videos.length;
       const completedVideos = state.videos.filter((video) => video.status === "completed").length;
@@ -436,34 +514,93 @@
       document.getElementById("notesCount").textContent = state.notes.length;
     }
 
+    function getNoteText(note) {
+      return note.content || note.note || note.title || "";
+    }
+
+    function getNoteSearchText(note) {
+      return [note.id, note.date, note.title, note.content, note.note].join(" ").toLowerCase();
+    }
+
+    function getNoteMonthOptions() {
+      return [...new Set(state.notes
+        .map((note) => String(note.date || "").slice(0, 7))
+        .filter((month) => /^\d{4}-\d{2}$/.test(month)))]
+        .sort();
+    }
+
+    function renderNoteMonthOptions() {
+      const select = document.getElementById("noteMonthFilter");
+      const currentValue = select.value || state.noteFilters.month;
+      const options = getNoteMonthOptions();
+      select.innerHTML = [
+        '<option value="all">所有月份</option>',
+        ...options.map((month) => `<option value="${escapeHtml(month)}">${escapeHtml(month)}</option>`)
+      ].join("");
+      select.value = options.includes(currentValue) ? currentValue : "all";
+      state.noteFilters.month = select.value;
+    }
+
+    function getFilteredNotes() {
+      const searchText = state.noteFilters.searchText.trim().toLowerCase();
+      const month = state.noteFilters.month;
+
+      let notes = [...state.notes].sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")));
+      if (month !== "all") notes = notes.filter((note) => String(note.date || "").startsWith(month));
+      if (searchText) notes = notes.filter((note) => getNoteSearchText(note).includes(searchText));
+      return notes;
+    }
+
     function renderNotes() {
       const tbody = document.getElementById("notesTbody");
-      const rows = [...state.notes].sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")));
+      const rows = getFilteredNotes();
+      const pageSize = state.noteFilters.pageSize;
+      const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+      state.noteFilters.page = Math.min(Math.max(1, state.noteFilters.page), totalPages);
+
+      const startIndex = (state.noteFilters.page - 1) * pageSize;
+      const pageRows = rows.slice(startIndex, startIndex + pageSize);
+      const meta = document.getElementById("notesTableMeta");
+      const pageLabel = document.getElementById("notesPageLabel");
+      const prevBtn = document.getElementById("prevNotesPageBtn");
+      const nextBtn = document.getElementById("nextNotesPageBtn");
 
       if (!rows.length) {
         tbody.innerHTML = '<tr><td colspan="4" class="empty-row py-4">目前沒有筆記。</td></tr>';
+        meta.textContent = `顯示 0 / ${state.notes.length} 筆`;
+        pageLabel.textContent = "第 1 / 1 頁";
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
         return;
       }
 
-      tbody.innerHTML = rows.map((note, index) => `
+      tbody.innerHTML = pageRows.map((note, index) => `
         <tr>
-          <td class="mono">${escapeHtml(note.rowId || note.id || index + 1)}</td>
+          <td class="mono">${escapeHtml(note.rowId || note.id || startIndex + index + 1)}</td>
           <td class="mono">${escapeHtml(note.date || "")}</td>
-          <td class="truncate-cell" title="${escapeHtml(note.content || note.note || note.title || "")}">${escapeHtml(note.content || note.note || note.title || "")}</td>
+          <td class="truncate-cell" title="${escapeHtml(getNoteText(note))}">${escapeHtml(getNoteText(note))}</td>
           <td>
             <button class="btn btn-sm btn-outline-secondary" data-edit-note="${escapeHtml(note.id)}">編輯</button>
             <button class="btn btn-sm btn-outline-danger" data-delete-note="${escapeHtml(note.id)}">刪除</button>
           </td>
         </tr>
       `).join("");
+
+      const endIndex = Math.min(startIndex + pageRows.length, rows.length);
+      meta.textContent = `顯示 ${startIndex + 1}-${endIndex} / 篩選 ${rows.length} 筆，總共 ${state.notes.length} 筆`;
+      pageLabel.textContent = `第 ${state.noteFilters.page} / ${totalPages} 頁`;
+      prevBtn.disabled = state.noteFilters.page <= 1;
+      nextBtn.disabled = state.noteFilters.page >= totalPages;
     }
 
     function getFilteredVideos() {
-      const queryText = document.getElementById("searchText").value.trim().toLowerCase();
-      const dateFilter = document.getElementById("dateFilter").value;
-      const statusFilter = document.getElementById("statusFilter").value;
+      const queryText = state.videoFilters.searchText.trim().toLowerCase();
+      const dateFilter = state.videoFilters.date;
+      const statusFilter = state.videoFilters.status;
+      const categoryFilter = state.videoFilters.category;
 
       let videos = [...state.videos];
+      if (categoryFilter !== "all") videos = videos.filter((video) => getVideoCategory(video) === categoryFilter);
       if (dateFilter === "dated") videos = videos.filter((video) => video.date);
       if (dateFilter === "undated") videos = videos.filter((video) => !video.date);
       if (statusFilter !== "all") videos = videos.filter((video) => video.status === statusFilter);
@@ -483,16 +620,42 @@
       return videos.sort((a, b) => String(a.series || "").localeCompare(String(b.series || ""), undefined, { numeric: true }));
     }
 
+    function renderVideoCategoryOptions() {
+      const select = document.getElementById("categoryFilter");
+      const currentValue = select.value || state.videoFilters.category;
+      const categories = [...new Set(state.videos.map(getVideoCategory))].sort((a, b) => a.localeCompare(b));
+      select.innerHTML = [
+        '<option value="all">所有分類</option>',
+        ...categories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`)
+      ].join("");
+      select.value = categories.includes(currentValue) ? currentValue : "all";
+      state.videoFilters.category = select.value;
+    }
+
     function renderVideos() {
       const tbody = document.getElementById("videosTbody");
       const videos = getFilteredVideos();
+      const pageSize = state.videoFilters.pageSize;
+      const totalPages = Math.max(1, Math.ceil(videos.length / pageSize));
+      state.videoFilters.page = Math.min(Math.max(1, state.videoFilters.page), totalPages);
+
+      const startIndex = (state.videoFilters.page - 1) * pageSize;
+      const pageRows = videos.slice(startIndex, startIndex + pageSize);
+      const meta = document.getElementById("videosTableMeta");
+      const pageLabel = document.getElementById("videosPageLabel");
+      const prevBtn = document.getElementById("prevVideosPageBtn");
+      const nextBtn = document.getElementById("nextVideosPageBtn");
 
       if (!videos.length) {
         tbody.innerHTML = '<tr><td colspan="6" class="empty-row py-4">沒有符合篩選條件的影片。</td></tr>';
+        meta.textContent = `顯示 0 / ${state.videos.length} 筆`;
+        pageLabel.textContent = "第 1 / 1 頁";
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
         return;
       }
 
-      tbody.innerHTML = videos.map((video) => `
+      tbody.innerHTML = pageRows.map((video) => `
         <tr>
           <td class="mono">${escapeHtml(video.series || "")}</td>
           <td class="truncate-cell" title="${escapeHtml(getVideoTitle(video))}">${escapeHtml(getVideoTitle(video))}</td>
@@ -505,10 +668,18 @@
           </td>
         </tr>
       `).join("");
+
+      const endIndex = Math.min(startIndex + pageRows.length, videos.length);
+      meta.textContent = `顯示 ${startIndex + 1}-${endIndex} / 篩選 ${videos.length} 筆，總共 ${state.videos.length} 筆`;
+      pageLabel.textContent = `第 ${state.videoFilters.page} / ${totalPages} 頁`;
+      prevBtn.disabled = state.videoFilters.page <= 1;
+      nextBtn.disabled = state.videoFilters.page >= totalPages;
     }
 
     function renderAdmin() {
       renderDashboard();
+      renderNoteMonthOptions();
+      renderVideoCategoryOptions();
       renderNotes();
       renderVideos();
       setBadge("sourceBadge", state.fromCache ? "使用快取資料" : "Firestore 已連線", state.fromCache ? "warning" : "success");
@@ -710,9 +881,62 @@
     document.getElementById("addVideoBtn").addEventListener("click", () => openVideoModal());
     document.getElementById("saveNoteBtn").addEventListener("click", handleSaveNote);
     document.getElementById("saveVideoBtn").addEventListener("click", handleSaveVideo);
-    document.getElementById("searchText").addEventListener("input", renderVideos);
-    document.getElementById("dateFilter").addEventListener("change", renderVideos);
-    document.getElementById("statusFilter").addEventListener("change", renderVideos);
+    document.getElementById("noteSearchText").addEventListener("input", (event) => {
+      state.noteFilters.searchText = event.target.value;
+      state.noteFilters.page = 1;
+      renderNotes();
+    });
+    document.getElementById("noteMonthFilter").addEventListener("change", (event) => {
+      state.noteFilters.month = event.target.value;
+      state.noteFilters.page = 1;
+      renderNotes();
+    });
+    document.getElementById("notePageSize").addEventListener("change", (event) => {
+      state.noteFilters.pageSize = Number(event.target.value || 20);
+      state.noteFilters.page = 1;
+      renderNotes();
+    });
+    document.getElementById("prevNotesPageBtn").addEventListener("click", () => {
+      state.noteFilters.page -= 1;
+      renderNotes();
+    });
+    document.getElementById("nextNotesPageBtn").addEventListener("click", () => {
+      state.noteFilters.page += 1;
+      renderNotes();
+    });
+    document.getElementById("searchText").addEventListener("input", (event) => {
+      state.videoFilters.searchText = event.target.value;
+      state.videoFilters.page = 1;
+      renderVideos();
+    });
+    document.getElementById("categoryFilter").addEventListener("change", (event) => {
+      state.videoFilters.category = event.target.value;
+      state.videoFilters.page = 1;
+      renderVideos();
+    });
+    document.getElementById("dateFilter").addEventListener("change", (event) => {
+      state.videoFilters.date = event.target.value;
+      state.videoFilters.page = 1;
+      renderVideos();
+    });
+    document.getElementById("statusFilter").addEventListener("change", (event) => {
+      state.videoFilters.status = event.target.value;
+      state.videoFilters.page = 1;
+      renderVideos();
+    });
+    document.getElementById("videoPageSize").addEventListener("change", (event) => {
+      state.videoFilters.pageSize = Number(event.target.value || 20);
+      state.videoFilters.page = 1;
+      renderVideos();
+    });
+    document.getElementById("prevVideosPageBtn").addEventListener("click", () => {
+      state.videoFilters.page -= 1;
+      renderVideos();
+    });
+    document.getElementById("nextVideosPageBtn").addEventListener("click", () => {
+      state.videoFilters.page += 1;
+      renderVideos();
+    });
 
     document.getElementById("notesTbody").addEventListener("click", async (event) => {
       const editId = event.target.dataset.editNote;
