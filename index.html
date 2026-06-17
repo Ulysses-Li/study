@@ -1,33 +1,37 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
+<!doctype html>
+<html lang="zh-Hant">
 
 <head>
-  <meta charset="UTF-8" />
-  <title>觀看紀錄月曆</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Louis Study Tracker</title>
   <link rel="icon" href="./Jimmore_logo.ico">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" />
-
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    /* =========================
-     (A) 月曆外觀樣式
-     用意：讓月曆可讀、星期有顏色、今天高亮
-     ========================= */
+    body {
+      background: #f8f9fa;
+    }
 
-    /* ✅ 關鍵：固定月曆每欄寬度，避免被文字撐開 */
-    table.calendar {
-      width: 100%;
+    .calendar {
       table-layout: fixed;
-      /* ← 防跑版核心 */
     }
 
     .calendar th,
     .calendar td {
-      text-align: center;
-      height: 110px;
+      height: 112px;
       vertical-align: top;
-      overflow: hidden;
-      /* 不讓內容撐開 cell */
+    }
+
+    .day-cell {
+      cursor: pointer;
+    }
+
+    .day-cell:hover {
+      background: #f1f3f5;
+    }
+
+    .today {
+      background: #fff3cd;
     }
 
     .sun {
@@ -38,278 +42,45 @@
       color: #0d6efd;
     }
 
-    .today {
-      background: #fff3cd;
-      border-radius: 10px;
-    }
-
-    .cal-btn {
-      min-width: 110px;
-    }
-
-    .day-cell {
-      cursor: pointer;
-    }
-
-    .day-num {
-      font-weight: 700;
-    }
-
-    /* =========================
-     (B) 影片摘要區塊（灰底）
-     用意：
-     - 最多顯示 2 行
-     - 長英文 / 沒空白字串也不會撐版
-     ========================= */
-    .event-text {
-      margin-top: 6px;
-      font-size: 0.85rem;
-      text-align: left;
-      background: #f1f3f5;
-      border-radius: 6px;
-      padding: 6px;
-
-      /* ✅ 防跑版設定 */
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-      /* -webkit-line-clamp: 2;   顯示最多 2 行 */
-      overflow: hidden;
-
-      white-space: normal;
-      /* 允許換行 */
-      word-break: break-word;
-      /* 強制斷長字 */
-      overflow-wrap: anywhere;
-    }
-
-    /* =========================
-     (C) 行事曆備註（藍底）
-     用意：
-     - 與影片一致，不撐格子
-     - 顯示例如「Q4季會（休息）」
-     ========================= */
+    .event-text,
     .note-text {
       margin-top: 6px;
-      font-size: 0.85rem;
-      text-align: left;
-      background: #e7f1ff;
-      border: 1px solid #b6d4fe;
       border-radius: 6px;
       padding: 6px;
-
-      /* ✅ 防跑版設定 */
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-      /* -webkit-line-clamp: 2; */
-      overflow: hidden;
-
-      white-space: normal;
-      word-break: break-word;
+      font-size: .85rem;
+      line-height: 1.35;
       overflow-wrap: anywhere;
     }
-  </style>
 
+    .event-text {
+      background: #f1f3f5;
+    }
+
+    .note-text {
+      background: #e7f1ff;
+      border: 1px solid #b6d4fe;
+    }
+  </style>
 </head>
 
-<body class="bg-light">
-  <div class="container my-4">
-    <!-- =========================
-         (B) 月曆掛載位置
-         用意：只顯示「有 date 的影片」+「行事曆備註」
-         ========================= -->
-    <div id="calendarMount"></div>
-  </div>
+<body>
+  <main class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+      <div>
+        <h1 class="h3 mb-1">Louis Study Tracker</h1>
+        <p id="dataStatus" class="text-muted mb-0">資料載入中...</p>
+      </div>
+      <a class="btn btn-outline-secondary" href="login.html">Admin</a>
+    </div>
 
-  <!-- =========================================================
-       (D) 每週訓練影片區（自動生成）
-       用意：
-       - 把「沒有 date 的影片」放在這裡，讓你直接看
-       - 你日後如果補上 date，該影片就會自動「從這裡消失」並進入月曆
-       ========================================================= -->
-  <div class="container my-5" id="trainingSection">
-    <h2 class="mb-4 fw-bold">📺 每週訓練影片（未排日期）</h2>
+    <section class="mb-4" id="calendarSection">
+      <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+        <button id="prevBtn" class="btn btn-outline-secondary" type="button">上一月</button>
+        <h2 id="calendarTitle" class="h4 mb-0"></h2>
+        <button id="nextBtn" class="btn btn-outline-secondary" type="button">下一月</button>
+      </div>
 
-    <!-- JS 會把未排日期影片自動渲染在這裡 -->
-    <div id="trainingList" class="row g-3"></div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- =========================================================
-       (0) 由 Apps Script 載入資料（取代 videos.js）
-       用意：
-       - 從 Sheet export 回來的 JSON，塞入 window.VIDEO_DB / window.CALENDAR_NOTES
-       - 等資料回來才 initCalendarApp()
-       ========================================================= -->
-  <script>
-    // ✅ 設定你的 Apps Script Web App URL（.../exec）
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwmTyUU3jaFt61TGFR5JZM871un29fGxkJSV3UArQFNA8UAUOvKcCukO92E_52EusFTZg/exec";
-
-    async function loadFromSheet() {
-      const res = await fetch(WEB_APP_URL + "?action=export", { cache: "no-store" });
-      const data = await res.json();
-
-      window.VIDEO_DB = data.VIDEO_DB || [];
-      window.CALENDAR_NOTES = data.CALENDAR_NOTES || {};
-
-      initCalendarApp();
-    }
-
-    loadFromSheet();
-
-    /** 註解與用意：
-     * - 由月曆前端直接呼叫 Apps Script API 取得最新資料
-     * - 回傳仍塞到 window.VIDEO_DB / window.CALENDAR_NOTES，讓月曆主程式維持原結構
-     * - initCalendarApp() 讓初始化延後到資料載入完成後執行（避免空資料先 render）
-     */
-  </script>
-
-  <!-- =========================================================
-       (2) 工具函式
-       用意：
-       - toKey：把日期組成 YYYY-MM-DD
-       - escapeHtml：避免文字內有特殊符號造成 HTML 破版
-       - normalizeToWatchUrl / normalizeToEmbedUrl：處理 YouTube 連結格式
-       ========================================================= -->
-  <script>
-    function toKey(y, m, d) {
-      const mm = String(m + 1).padStart(2, "0");
-      const dd = String(d).padStart(2, "0");
-      return `${y}-${mm}-${dd}`;
-    }
-
-    function escapeHtml(str) {
-      return String(str)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function normalizeToWatchUrl(url) {
-      const s = String(url || "");
-
-      const embedMatch = s.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/);
-      if (embedMatch) return `https://www.youtube.com/watch?v=${embedMatch[1]}`;
-
-      const shortMatch = s.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
-      if (shortMatch) {
-        const query = s.includes("?") ? s.slice(s.indexOf("?")) : "";
-        return `https://www.youtube.com/watch?v=${shortMatch[1]}${query}`;
-      }
-
-      return s;
-    }
-
-    function normalizeToEmbedUrl(url) {
-      const s = String(url || "");
-
-      if (s.includes("youtube.com/embed/")) return s;
-
-      const watchMatch = s.match(/v=([a-zA-Z0-9_-]+)/);
-      if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`;
-
-      const shortMatch = s.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
-      if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
-
-      return s;
-    }
-  </script>
-
-  <!-- =========================================================
-       (3) 日期 normalize & 影片分組
-       用意：解決 Sheet 回來的 date 可能是 Date/長字串，統一轉 YYYY-MM-DD 才能對上格子 key
-       ========================================================= -->
-  <script>
-    function normalizeDateKey(d) {
-      if (!d) return "";
-
-      // 已經是 YYYY-MM-DD
-      if (typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
-
-      // Date 或可被 new Date() 解析的字串
-      const dt = new Date(d);
-      if (isNaN(dt)) return "";
-
-      const y = dt.getFullYear();
-      const m = String(dt.getMonth() + 1).padStart(2, "0");
-      const day = String(dt.getDate()).padStart(2, "0");
-      return `${y}-${m}-${day}`;
-    }
-
-    function groupVideosByDate(db) {
-      const byDate = {};
-      for (const v of db) {
-        if (!v.date) continue;
-        const key = normalizeDateKey(v.date);
-        if (!key) continue;
-        (byDate[key] ||= []).push(v);
-      }
-      return byDate;
-    }
-
-    /** 註解與用意：
-     * - date 轉 key：確保 2026-01-05 這種能對到月曆格子
-     * - 影片群組：同一天可多部影片
-     */
-  </script>
-
-  <!-- =========================================================
-       (3-2) 備註分組（重點修正）
-       用意：
-       - 你原本 notes 是字串，merge 時會壞掉
-       - 這裡改成「每一天都是陣列」，每筆帶 type="note" & text
-       ========================================================= -->
-  <script>
-    function groupNotesByDate(notesObj) {
-      const out = {};
-      if (!notesObj) return out;
-
-      for (const rawKey of Object.keys(notesObj)) {
-        const key = normalizeDateKey(rawKey);
-        if (!key) continue;
-
-        const v = notesObj[rawKey];
-        const text = Array.isArray(v) ? v.filter(Boolean).join("\n") : String(v ?? "").trim();
-        if (!text) continue;
-
-        // ✅ 改成陣列，並包成物件（render 端才能用 n.text）
-        (out[key] ||= []).push({ type: "note", text });
-      }
-      return out;
-    }
-
-    function mergeByDate(a, b) {
-      const out = { ...(a || {}) };
-      for (const k in (b || {})) {
-        // ✅ 兩邊都當陣列處理，避免字串 concat 壞掉
-        const left = Array.isArray(out[k]) ? out[k] : (out[k] ? [out[k]] : []);
-        const right = Array.isArray(b[k]) ? b[k] : (b[k] ? [b[k]] : []);
-        out[k] = left.concat(right);
-      }
-      return out;
-    }
-
-    /** 註解與用意：
-     * - notes 轉成 [{type:"note", text:"..."}]，renderCalendar 才能畫藍底文字
-     * - mergeByDate 保證兩邊資料都是陣列，避免你之前出現「只有 icon / 空白灰條」問題
-     */
-  </script>
-
-  <!-- =========================================================
-       (4) 月曆 UI 骨架
-       用意：只建一次骨架，換月時只更新 tbody
-       ========================================================= -->
-  <script>
-    function buildCalendarSkeleton(rootEl) {
-      rootEl.innerHTML = `
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <button id="prevBtn" class="btn btn-outline-secondary cal-btn">← 上個月</button>
-          <h3 id="calendarTitle" class="m-0"></h3>
-          <button id="nextBtn" class="btn btn-outline-secondary cal-btn">下個月 →</button>
-        </div>
-
+      <div class="table-responsive">
         <table class="table table-bordered calendar bg-white">
           <thead class="table-secondary">
             <tr>
@@ -324,249 +95,271 @@
           </thead>
           <tbody id="calendarBody"></tbody>
         </table>
+      </div>
 
-        <div class="text-center mt-3">
-          <button id="todayBtn" class="btn btn-primary">回到今天</button>
+      <div class="text-center">
+        <button id="todayBtn" class="btn btn-primary" type="button">回到今天</button>
+      </div>
+    </section>
+
+    <section id="videoSection">
+      <h2 class="h4 mb-3">未排日期影片</h2>
+      <div id="trainingList" class="row g-3"></div>
+    </section>
+  </main>
+
+  <div class="modal fade" id="dayModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 id="dayModalTitle" class="modal-title"></h5>
+          <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-      `;
+        <div id="dayModalBody" class="modal-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="appToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">系統訊息</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div id="toastBody" class="toast-body"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module">
+    import { loadNotes, loadVideos } from "./js/firestore-service.js";
+
+    const state = {
+      year: new Date().getFullYear(),
+      month: new Date().getMonth(),
+      today: new Date(),
+      videos: [],
+      notes: [],
+      byDate: {}
+    };
+    const dayModal = new bootstrap.Modal(document.getElementById("dayModal"));
+    const toast = new bootstrap.Toast(document.getElementById("appToast"));
+
+    function showToast(message) {
+      document.getElementById("toastBody").textContent = message;
+      toast.show();
     }
-  </script>
 
-  <!-- =========================================================
-       (5) 月曆渲染（重點修正 notes 顯示）
-       用意：
-       - 影片：灰底 event-text（可顯示名稱或只顯示 ▶）
-       - 備註：藍底 note-text（只顯示文字，不要 🟦 icon）
-       ========================================================= -->
-  <script>
-    function renderCalendar({ year, month, byDate, realToday }) {
-      const titleEl = document.getElementById("calendarTitle");
-      const bodyEl = document.getElementById("calendarBody");
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (match) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#039;"
+      }[match]));
+    }
 
-      titleEl.innerText = `${year} 年 ${month + 1} 月`;
+    function toDateKey(year, month, day) {
+      return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    }
 
-      const firstDay = new Date(year, month, 1).getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
+    function normalizeDateKey(value) {
+      if (!value) return "";
+      if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      return toDateKey(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
+    function normalizeToWatchUrl(url) {
+      const text = String(url || "");
+      const embedMatch = text.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/);
+      if (embedMatch) return `https://www.youtube.com/watch?v=${embedMatch[1]}`;
+
+      const shortMatch = text.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+      if (shortMatch) return `https://www.youtube.com/watch?v=${shortMatch[1]}`;
+
+      return text;
+    }
+
+    function normalizeToEmbedUrl(url) {
+      const text = String(url || "");
+      if (text.includes("youtube.com/embed/")) return text;
+
+      const watchMatch = text.match(/v=([a-zA-Z0-9_-]+)/);
+      if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`;
+
+      const shortMatch = text.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+      if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
+
+      return text;
+    }
+
+    function getVideoTitle(video) {
+      return video.title || video.name || "未命名影片";
+    }
+
+    function groupByDate() {
+      const output = {};
+
+      for (const video of state.videos) {
+        const date = normalizeDateKey(video.date);
+        if (!date) continue;
+        (output[date] ||= []).push({ type: "video", ...video });
+      }
+
+      for (const note of state.notes) {
+        const date = normalizeDateKey(note.date);
+        if (!date) continue;
+        (output[date] ||= []).push({ type: "note", ...note });
+      }
+
+      state.byDate = output;
+    }
+
+    function renderCalendar() {
+      document.getElementById("calendarTitle").textContent = `${state.year} 年 ${state.month + 1} 月`;
+      const body = document.getElementById("calendarBody");
+      const firstDay = new Date(state.year, state.month, 1).getDay();
+      const daysInMonth = new Date(state.year, state.month + 1, 0).getDate();
 
       let html = "<tr>";
-      for (let i = 0; i < firstDay; i++) html += "<td></td>";
+      for (let index = 0; index < firstDay; index++) html += "<td></td>";
 
       for (let day = 1; day <= daysInMonth; day++) {
-        const d = new Date(year, month, day);
-        const weekDay = d.getDay();
+        const weekday = new Date(state.year, state.month, day).getDay();
+        const key = toDateKey(state.year, state.month, day);
+        const items = state.byDate[key] || [];
+        const videos = items.filter((item) => item.type === "video");
+        const notes = items.filter((item) => item.type === "note");
+        const isToday = state.year === state.today.getFullYear()
+          && state.month === state.today.getMonth()
+          && day === state.today.getDate();
 
-        let cls = "day-cell";
-        if (weekDay === 0) cls += " sun";
-        if (weekDay === 6) cls += " sat";
+        let className = "day-cell";
+        if (weekday === 0) className += " sun";
+        if (weekday === 6) className += " sat";
+        if (isToday) className += " today";
 
-        const isToday =
-          year === realToday.getFullYear() &&
-          month === realToday.getMonth() &&
-          day === realToday.getDate();
-        if (isToday) cls += " today";
-
-        const key = toKey(year, month, day);
-        const list = byDate[key] || [];
-
-        const videos = list.filter(x => x && x.type !== "note");
-        const notes = list.filter(x => x && x.type === "note");
-
-        let summary = "";
-
-        // ✅ 影片摘要（灰底）
-        if (videos.length) {
-          const names = videos
-            .slice(0, 2)
-            // 想顯示名稱就用下面這行：
-            // .map(v => `▶ ${escapeHtml(v.name)}`)
-            // 若你只想顯示 ▶ 就維持這行：
-            .map(v => `▶`)
-            .join("\n");
-
-          const more = videos.length > 2 ? `\n…還有 ${videos.length - 2} 部` : "";
-          summary += `<div class="event-text">${names}${more}</div>`;
-        }
-
-        // ✅ 行事曆備註（藍底）：只顯示文字，不要 🟦 icon
-        if (notes.length) {
-          const noteText = notes.map(n => escapeHtml(n.text)).join("\n");
-          summary += `<div class="note-text">${noteText}</div>`;
-        }
+        const videoText = videos.length
+          ? `<div class="event-text">${videos.slice(0, 2).map((video) => escapeHtml(getVideoTitle(video))).join("<br>")}</div>`
+          : "";
+        const noteText = notes.length
+          ? `<div class="note-text">${notes.slice(0, 1).map((note) => escapeHtml(note.title || note.content)).join("<br>")}</div>`
+          : "";
 
         html += `
-          <td class="${cls}" data-date="${key}">
-            <div class="day-num">${day}</div>
-            ${summary}
+          <td class="${className}" data-date="${key}">
+            <div class="fw-bold">${day}</div>
+            ${videoText}
+            ${noteText}
           </td>
         `;
 
-        if (weekDay === 6 && day !== daysInMonth) html += "</tr><tr>";
+        if (weekday === 6 && day !== daysInMonth) html += "</tr><tr>";
       }
 
-      const lastDay = new Date(year, month, daysInMonth).getDay();
-      for (let i = lastDay; i < 6; i++) html += "<td></td>";
+      const lastDay = new Date(state.year, state.month, daysInMonth).getDay();
+      for (let index = lastDay; index < 6; index++) html += "<td></td>";
 
-      html += "</tr>";
-      bodyEl.innerHTML = html;
+      body.innerHTML = `${html}</tr>`;
     }
-  </script>
 
-  <!-- =========================================================
-       (6) 點日期：先顯示備註，再開影片
-       用意：
-       - 有備註：先 alert 顯示
-       - 影片 1 部：直接開
-       - 影片多部：prompt 選擇
-       ========================================================= -->
-  <script>
-    function bindDayClick({ getByDate }) {
-      const bodyEl = document.getElementById("calendarBody");
+    function renderTrainingSection() {
+      const list = document.getElementById("trainingList");
+      const undated = state.videos.filter((video) => !normalizeDateKey(video.date));
 
-      bodyEl.addEventListener("click", (e) => {
-        const cell = e.target.closest("td[data-date]");
-        if (!cell) return;
-
-        const key = cell.dataset.date;
-        const list = (getByDate()[key] || []);
-        if (!list.length) return;
-
-        const notes = list.filter(x => x && x.type === "note");
-        if (notes.length) {
-          alert(`${key}\n\n${notes.map(n => n.text).join("\n")}`);
-        }
-
-        const videos = list.filter(x => x && x.type !== "note");
-        if (!videos.length) return;
-
-        if (videos.length === 1) {
-          window.open(normalizeToWatchUrl(videos[0].url), "_blank");
-          return;
-        }
-
-        const msg = videos.map((v, i) => `${i + 1}. ${v.name}`).join("\n");
-        const pick = prompt(`${key} 有 ${videos.length} 部影片：\n\n${msg}\n\n輸入數字開啟（例如 1）`);
-        const idx = Number(pick) - 1;
-
-        if (!Number.isFinite(idx) || idx < 0 || idx >= videos.length) return;
-        window.open(normalizeToWatchUrl(videos[idx].url), "_blank");
-      });
-    }
-  </script>
-
-  <!-- =========================================================
-       (7) 渲染「每週訓練影片區」：只放 date 為空的影片
-       用意：
-       - 不排日期的影片集中放這裡
-       - 日後只要補上 date，就會自動進月曆
-       ========================================================= -->
-  <script>
-    function renderTrainingSection(db) {
-      const listEl = document.getElementById("trainingList");
-      const unDated = db.filter(v => !v.date);
-
-      if (!unDated.length) {
-        listEl.innerHTML = `<div class="alert alert-success">目前沒有未排日期的影片 ✅</div>`;
+      if (!undated.length) {
+        list.innerHTML = '<div class="col-12"><div class="alert alert-success">目前沒有未排日期影片。</div></div>';
         return;
       }
 
-      listEl.innerHTML = unDated.map((v, idx) => {
-        const embed = normalizeToEmbedUrl(v.url);
-        return `
-          <div class="col-12 col-md-6 fw-bold">
-            <h5 class="fw-semibold mb-3">(${escapeHtml(v.series)}) ${escapeHtml(v.name)}</h5>
-            <div class="ratio ratio-16x9 shadow rounded overflow-hidden">
-              <iframe src="${escapeHtml(embed)}" title="Training video ${idx + 1}"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen></iframe>
+      list.innerHTML = undated.map((video, index) => `
+        <div class="col-12 col-md-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="h6">${escapeHtml(video.series || "未分類")} | ${escapeHtml(getVideoTitle(video))}</h3>
+              <div class="ratio ratio-16x9 mt-3">
+                <iframe src="${escapeHtml(normalizeToEmbedUrl(video.url))}" title="Training video ${index + 1}" allowfullscreen></iframe>
+              </div>
             </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function openDayModal(date) {
+      const items = state.byDate[date] || [];
+      if (!items.length) return;
+
+      document.getElementById("dayModalTitle").textContent = date;
+      document.getElementById("dayModalBody").innerHTML = items.map((item) => {
+        if (item.type === "note") {
+          return `<div class="alert alert-primary"><strong>${escapeHtml(item.title || "Note")}</strong><br>${escapeHtml(item.content || "")}</div>`;
+        }
+
+        return `
+          <div class="border-bottom pb-2 mb-2">
+            <div class="fw-semibold">${escapeHtml(getVideoTitle(item))}</div>
+            <div class="small text-muted">${escapeHtml(item.series || "")}</div>
+            <a href="${escapeHtml(normalizeToWatchUrl(item.url))}" target="_blank" rel="noopener">開啟影片</a>
           </div>
         `;
       }).join("");
+      dayModal.show();
     }
-  </script>
 
-  <!-- =========================================================
-       (8) 上/下月 & 回到今天
-       用意：切換月份後重新 render 月曆
-       ========================================================= -->
-  <script>
-    function bindNavButtons({ getState, setState, rerender }) {
-      document.getElementById("prevBtn").addEventListener("click", () => {
-        const s = getState();
-        s.month--;
-        if (s.month < 0) { s.month = 11; s.year--; }
-        setState(s);
-        rerender();
-      });
+    async function initPage() {
+      try {
+        const [videoResult, noteResult] = await Promise.all([loadVideos(), loadNotes()]);
+        state.videos = videoResult.data;
+        state.notes = noteResult.data;
+        groupByDate();
+        renderCalendar();
+        renderTrainingSection();
 
-      document.getElementById("nextBtn").addEventListener("click", () => {
-        const s = getState();
-        s.month++;
-        if (s.month > 11) { s.month = 0; s.year++; }
-        setState(s);
-        rerender();
-      });
-
-      document.getElementById("todayBtn").addEventListener("click", () => {
-        const s = getState();
-        s.year = s.realToday.getFullYear();
-        s.month = s.realToday.getMonth();
-        setState(s);
-        rerender();
-      });
-    }
-  </script>
-
-  <!-- =========================================================
-       (9) 初始化入口（等資料回來才會被呼叫）
-       ========================================================= -->
-  <script>
-    function initCalendarApp() {
-      const root = document.getElementById("calendarMount");
-      buildCalendarSkeleton(root);
-
-      const db = window.VIDEO_DB || [];
-      const notesObj = window.CALENDAR_NOTES || {};
-
-      const realToday = new Date();
-      let state = {
-        year: realToday.getFullYear(),
-        month: realToday.getMonth(),
-        realToday
-      };
-
-      let byDate = {};
-
-      function rerender() {
-        const videoByDate = groupVideosByDate(db);
-        const noteByDate = groupNotesByDate(notesObj);
-        byDate = mergeByDate(videoByDate, noteByDate);
-
-        renderCalendar({
-          year: state.year,
-          month: state.month,
-          byDate,
-          realToday: state.realToday
-        });
+        const fromCache = videoResult.fromCache || noteResult.fromCache;
+        document.getElementById("dataStatus").textContent = fromCache ? "使用 localStorage 快取資料。" : "資料來自 Firestore。";
+        if (fromCache) showToast("Firestore 讀取失敗，已改用 localStorage 快取。");
+      } catch (error) {
+        console.error("首頁資料初始化失敗", error);
+        showToast("資料載入失敗，請稍後再試。");
       }
-
-      rerender();
-      renderTrainingSection(db);
-      bindDayClick({ getByDate: () => byDate });
-
-      bindNavButtons({
-        getState: () => ({ ...state }),
-        setState: (s) => { state = s; },
-        rerender
-      });
     }
 
-    /** 註解與用意：
-     * - initCalendarApp() 只在 loadFromSheet() 成功後被呼叫
-     * - 確保 window.VIDEO_DB / window.CALENDAR_NOTES 已經有資料
-     */
-  </script>
+    document.getElementById("calendarBody").addEventListener("click", (event) => {
+      const cell = event.target.closest("td[data-date]");
+      if (cell) openDayModal(cell.dataset.date);
+    });
 
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      state.month -= 1;
+      if (state.month < 0) {
+        state.month = 11;
+        state.year -= 1;
+      }
+      renderCalendar();
+    });
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      state.month += 1;
+      if (state.month > 11) {
+        state.month = 0;
+        state.year += 1;
+      }
+      renderCalendar();
+    });
+
+    document.getElementById("todayBtn").addEventListener("click", () => {
+      state.year = state.today.getFullYear();
+      state.month = state.today.getMonth();
+      renderCalendar();
+    });
+
+    initPage();
+  </script>
 </body>
 
 </html>

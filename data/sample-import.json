@@ -1,0 +1,40 @@
+{
+  "videos": [
+    {
+      "title": "Firebase Firestore 基礎教學",
+      "series": "Firebase",
+      "category": "Backend",
+      "url": "https://www.youtube.com/watch?v=example",
+      "date": "2026-06-17",
+      "status": "planned",
+      "progress": 0,
+      "duration": 30,
+      "tags": ["Firebase", "Firestore"],
+      "note": "先理解 collection / document / field"
+    },
+    {
+      "title": "Bootstrap 5 Grid 教學",
+      "series": "Bootstrap",
+      "category": "Frontend",
+      "url": "https://www.youtube.com/watch?v=example2",
+      "date": "2026-06-18",
+      "status": "watching",
+      "progress": 40,
+      "duration": 25,
+      "tags": ["Bootstrap", "Grid", "CSS"],
+      "note": "練習 row / col / container"
+    }
+  ],
+  "notes": [
+    {
+      "date": "2026-06-17",
+      "title": "Firebase 筆記",
+      "content": "今天完成 Firestore 資料結構設計。"
+    },
+    {
+      "date": "2026-06-18",
+      "title": "Bootstrap 筆記",
+      "content": "Grid 系統要注意 container、row、col 的層級。"
+    }
+  ]
+}

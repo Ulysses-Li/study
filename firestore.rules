@@ -1,0 +1,39 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    // 首頁公開讀取影片資料，只有 Admin 可以寫入。
+    match /videos/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // 首頁公開讀取筆記資料，只有 Admin 可以寫入。
+    match /notes/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // 首頁公開讀取設定資料，只有 Admin 可以寫入。
+    match /settings/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // users 文件需由 Firebase Console 或受信任環境建立。
+    match /users/{uid} {
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow create, update, delete: if false;
+    }
+  }
+}
