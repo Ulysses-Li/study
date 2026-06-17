@@ -157,14 +157,142 @@
     }
 
     @media (max-width: 768px) {
+      body {
+        font-size: 14px;
+      }
+
+      .app-shell {
+        padding-left: 14px !important;
+        padding-right: 14px !important;
+      }
+
+      .app-header .btn {
+        min-height: 38px;
+      }
+
+      .panel {
+        border-radius: 8px;
+      }
+
+      .summary-card {
+        min-height: 78px;
+        padding: 12px !important;
+      }
+
+      .summary-value {
+        font-size: 1.65rem;
+      }
+
+      .admin-actions {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .admin-actions .btn,
+      .admin-actions .badge {
+        width: 100%;
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
       .notes-toolbar,
       .videos-toolbar,
       .toolbar-grid {
         grid-template-columns: 1fr;
       }
 
-      .table-fixed-actions {
-        width: 150px;
+      .table-responsive {
+        overflow: visible;
+      }
+
+      .table {
+        margin-bottom: 0;
+      }
+
+      .table thead {
+        display: none;
+      }
+
+      .table tbody {
+        display: grid;
+        gap: 12px;
+      }
+
+      .table tbody tr {
+        display: block;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+      }
+
+      .table tbody td {
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 10px;
+        align-items: start;
+        border: 0;
+        border-bottom: 1px solid #edf2f7;
+        padding: 10px 12px;
+        white-space: normal;
+        word-break: break-word;
+      }
+
+      .table tbody td::before {
+        content: attr(data-label);
+        color: var(--text-muted);
+        font-size: .78rem;
+        font-weight: 700;
+      }
+
+      .table tbody td:last-child {
+        border-bottom: 0;
+      }
+
+      .truncate-cell {
+        max-width: none;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+      }
+
+      .row-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+      }
+
+      .row-actions::before {
+        display: none;
+      }
+
+      .row-actions .btn {
+        min-height: 36px;
+      }
+
+      .pager {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .pager .btn {
+        min-width: 74px;
+      }
+
+      .table-meta {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .admin-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .table tbody td {
+        grid-template-columns: 64px minmax(0, 1fr);
+        padding: 9px 10px;
       }
     }
   </style>
@@ -218,7 +346,7 @@
     </section>
 
     <section class="panel p-3 mb-3">
-      <div class="d-flex flex-wrap gap-2">
+      <div class="d-flex flex-wrap gap-2 admin-actions">
         <button id="reloadBtn" class="btn btn-primary" type="button">重新載入</button>
         <button id="exportBtn" class="btn btn-outline-success" type="button">匯出 JSON</button>
         <button id="toggleImportBtn" class="btn btn-outline-dark" type="button">匯入 JSON</button>
@@ -483,6 +611,8 @@
       saveVideo
     } from "./js/firestore-service.js";
 
+    const compactPageSize = window.matchMedia("(max-width: 768px)").matches ? 10 : 20;
+
     const state = {
       user: null,
       videos: [],
@@ -493,7 +623,7 @@
         searchText: "",
         month: "all",
         page: 1,
-        pageSize: 20
+        pageSize: compactPageSize
       },
       videoFilters: {
         searchText: "",
@@ -501,7 +631,7 @@
         date: "all",
         status: "all",
         page: 1,
-        pageSize: 20
+        pageSize: compactPageSize
       }
     };
 
@@ -513,6 +643,11 @@
     function showToast(message) {
       document.getElementById("toastBody").textContent = message;
       toast.show();
+    }
+
+    function syncPageSizeControls() {
+      document.getElementById("notePageSize").value = String(state.noteFilters.pageSize);
+      document.getElementById("videoPageSize").value = String(state.videoFilters.pageSize);
     }
 
     function openHelpModal() {
@@ -642,10 +777,10 @@
 
       tbody.innerHTML = pageRows.map((note, index) => `
         <tr>
-          <td class="mono">${escapeHtml(note.rowId || note.id || startIndex + index + 1)}</td>
-          <td class="mono">${escapeHtml(note.date || "")}</td>
-          <td class="truncate-cell" title="${escapeHtml(getNoteText(note))}">${escapeHtml(getNoteText(note))}</td>
-          <td>
+          <td class="mono" data-label="ID">${escapeHtml(note.rowId || note.id || startIndex + index + 1)}</td>
+          <td class="mono" data-label="日期">${escapeHtml(note.date || "")}</td>
+          <td class="truncate-cell" data-label="筆記" title="${escapeHtml(getNoteText(note))}">${escapeHtml(getNoteText(note))}</td>
+          <td class="row-actions" data-label="操作">
             <button class="btn btn-sm btn-outline-secondary" data-edit-note="${escapeHtml(note.id)}">編輯</button>
             <button class="btn btn-sm btn-outline-danger" data-delete-note="${escapeHtml(note.id)}">刪除</button>
           </td>
@@ -723,12 +858,12 @@
 
       tbody.innerHTML = pageRows.map((video) => `
         <tr>
-          <td class="mono">${escapeHtml(video.series || "")}</td>
-          <td class="truncate-cell" title="${escapeHtml(getVideoTitle(video))}">${escapeHtml(getVideoTitle(video))}</td>
-          <td class="mono">${escapeHtml(video.date || "")}</td>
-          <td>${escapeHtml(getStatusLabel(video.status))}</td>
-          <td>${clampPercent(video.progress)}%</td>
-          <td>
+          <td class="mono" data-label="系列">${escapeHtml(video.series || "")}</td>
+          <td class="truncate-cell" data-label="影片" title="${escapeHtml(getVideoTitle(video))}">${escapeHtml(getVideoTitle(video))}</td>
+          <td class="mono" data-label="日期">${escapeHtml(video.date || "未排程")}</td>
+          <td data-label="狀態">${escapeHtml(getStatusLabel(video.status))}</td>
+          <td data-label="進度">${clampPercent(video.progress)}%</td>
+          <td class="row-actions" data-label="操作">
             <button class="btn btn-sm btn-outline-secondary" data-edit-video="${escapeHtml(video.id)}">編輯</button>
             <button class="btn btn-sm btn-outline-danger" data-delete-video="${escapeHtml(video.id)}">刪除</button>
           </td>
@@ -933,6 +1068,7 @@
 
         state.user = user;
         document.getElementById("adminStatus").textContent = `已登入：${user.email}`;
+        syncPageSizeControls();
         await verifyAdminAccess();
         await loadAllData();
       } catch (error) {
