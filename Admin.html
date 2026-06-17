@@ -4,25 +4,43 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin | Louis Study Tracker</title>
+  <title>後台管理 | Louis Study Tracker</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
+    :root {
+      --page-bg: #d9edff;
+      --panel-bg: #eef7ff;
+      --panel-border: #9bc7e4;
+      --panel-strong: #bfe1f8;
+      --text-main: #19324a;
+      --text-muted: #5a7085;
+      --blue: #0d6efd;
+    }
+
     body {
-      background: #f6f7f9;
-      color: #1f2937;
+      min-height: 100vh;
+      background: linear-gradient(180deg, var(--page-bg), #eff7ff 72%);
+      color: var(--text-main);
+      font-size: 15px;
     }
 
     .app-shell {
-      max-width: 1480px;
+      max-width: 1220px;
     }
 
     .mono {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
-    .summary-card {
-      min-height: 104px;
+    .panel {
+      background: rgba(238, 247, 255, 0.78);
+      border: 1px solid var(--panel-border);
       border-radius: 8px;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.55) inset;
+    }
+
+    .summary-card {
+      min-height: 92px;
     }
 
     .summary-value {
@@ -30,29 +48,75 @@
       line-height: 1;
     }
 
-    .table td {
-      vertical-align: middle;
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: #416d91;
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 600;
     }
 
-    .table-fixed-actions {
-      width: 170px;
+    .form-control,
+    .form-select,
+    .btn {
+      border-radius: 6px;
+    }
+
+    .table {
+      --bs-table-bg: transparent;
+      --bs-table-hover-bg: rgba(13, 110, 253, 0.08);
+      color: var(--text-main);
+    }
+
+    .table thead th {
+      color: #12243a;
+      border-bottom-color: #9fc7de;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .table tbody tr:nth-child(odd) {
+      background: rgba(180, 214, 239, 0.45);
     }
 
     .truncate-cell {
-      max-width: 360px;
+      max-width: 420px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    .table-fixed-actions {
+      width: 160px;
+    }
+
+    .toolbar-grid {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) minmax(180px, 260px) minmax(180px, 260px);
+      gap: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .toolbar-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 
 <body>
   <main class="container-fluid app-shell px-3 px-lg-4 py-4">
-    <header class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <header class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
       <div>
-        <h1 class="h3 mb-1">Study Admin</h1>
-        <p id="adminStatus" class="text-muted mb-0">正在檢查登入狀態...</p>
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+          <h1 class="h3 mb-0">學習影片與筆記管理</h1>
+          <span id="sourceBadge" class="status-pill">尚未載入</span>
+        </div>
+        <p id="adminStatus" class="text-secondary mb-0">正在檢查登入狀態...</p>
       </div>
       <div class="d-flex gap-2">
         <a class="btn btn-outline-secondary" href="index.html">前台</a>
@@ -60,127 +124,108 @@
       </div>
     </header>
 
-    <section class="row g-3 mb-4" aria-label="Dashboard">
+    <section class="row g-3 mb-3" aria-label="統計資料">
       <div class="col-6 col-lg-3">
-        <div class="card summary-card">
-          <div class="card-body">
-            <div class="text-muted small">影片總數</div>
-            <div id="totalVideosCount" class="summary-value fw-bold">0</div>
-          </div>
+        <div class="panel summary-card p-3">
+          <div class="text-secondary small">影片總數</div>
+          <div id="totalVideosCount" class="summary-value fw-bold">0</div>
         </div>
       </div>
       <div class="col-6 col-lg-3">
-        <div class="card summary-card">
-          <div class="card-body">
-            <div class="text-muted small">已完成影片</div>
-            <div id="completedVideosCount" class="summary-value fw-bold text-success">0</div>
-          </div>
+        <div class="panel summary-card p-3">
+          <div class="text-secondary small">已完成影片</div>
+          <div id="completedVideosCount" class="summary-value fw-bold text-success">0</div>
         </div>
       </div>
       <div class="col-6 col-lg-3">
-        <div class="card summary-card">
-          <div class="card-body">
-            <div class="text-muted small">未完成影片</div>
-            <div id="unfinishedVideosCount" class="summary-value fw-bold text-warning">0</div>
-          </div>
+        <div class="panel summary-card p-3">
+          <div class="text-secondary small">未完成影片</div>
+          <div id="unfinishedVideosCount" class="summary-value fw-bold text-warning">0</div>
         </div>
       </div>
       <div class="col-6 col-lg-3">
-        <div class="card summary-card">
-          <div class="card-body">
-            <div class="text-muted small">筆記數量</div>
-            <div id="notesCount" class="summary-value fw-bold text-primary">0</div>
-          </div>
+        <div class="panel summary-card p-3">
+          <div class="text-secondary small">筆記數量</div>
+          <div id="notesCount" class="summary-value fw-bold text-primary">0</div>
         </div>
       </div>
     </section>
 
-    <div class="d-flex flex-wrap gap-2 mb-4">
-      <button id="reloadBtn" class="btn btn-primary" type="button">重新載入</button>
-      <button id="exportBtn" class="btn btn-outline-success" type="button">匯出 JSON</button>
-      <button id="toggleImportBtn" class="btn btn-outline-dark" type="button">匯入 JSON</button>
-      <button id="settingsBtn" class="btn btn-outline-secondary" type="button">初始化 settings</button>
-    </div>
+    <section class="panel p-3 mb-3">
+      <div class="d-flex flex-wrap gap-2">
+        <button id="reloadBtn" class="btn btn-primary" type="button">重新載入</button>
+        <button id="exportBtn" class="btn btn-outline-success" type="button">匯出資料</button>
+        <button id="toggleImportBtn" class="btn btn-outline-dark" type="button">匯入資料</button>
+        <button id="importSampleBtn" class="btn btn-outline-primary" type="button">匯入內建舊資料</button>
+        <button id="settingsBtn" class="btn btn-outline-secondary" type="button">初始化網站設定</button>
+        <span id="importBadge" class="badge text-bg-secondary align-self-center">匯入待命</span>
+      </div>
 
-    <section id="importBox" class="card mb-4 d-none">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h2 class="h5 mb-0">JSON 匯入</h2>
-          <button id="cancelImportBtn" class="btn btn-sm btn-outline-secondary" type="button">取消</button>
-        </div>
+      <div id="importBox" class="mt-3 d-none">
+        <label class="form-label" for="importText">貼上 JSON 資料</label>
         <textarea id="importText" class="form-control mono" rows="8" placeholder='{"videos": [], "notes": []}'></textarea>
-        <div class="d-flex gap-2 mt-3">
-          <button id="importBtn" class="btn btn-danger" type="button">匯入 Firestore</button>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <button id="importBtn" class="btn btn-danger" type="button">匯入到 Firestore</button>
+          <button id="cancelImportBtn" class="btn btn-outline-secondary" type="button">取消</button>
         </div>
       </div>
     </section>
 
-    <section class="card mb-4">
-      <div class="card-body">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-          <h2 class="h5 mb-0">Videos CRUD</h2>
-          <button id="addVideoBtn" class="btn btn-sm btn-outline-primary" type="button">新增影片</button>
-        </div>
-
-        <div class="row g-2 mb-3">
-          <div class="col-12 col-lg-6">
-            <input id="searchText" class="form-control" placeholder="搜尋 title / series / category / url / date">
-          </div>
-          <div class="col-12 col-sm-6 col-lg-3">
-            <select id="dateFilter" class="form-select">
-              <option value="all">全部日期</option>
-              <option value="dated">已有日期</option>
-              <option value="undated">未排日期</option>
-            </select>
-          </div>
-          <div class="col-12 col-sm-6 col-lg-3">
-            <select id="statusFilter" class="form-select">
-              <option value="all">全部狀態</option>
-              <option value="planned">planned</option>
-              <option value="watching">watching</option>
-              <option value="completed">completed</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="table-responsive">
-          <table class="table table-sm table-hover align-middle">
-            <thead>
-              <tr>
-                <th style="width: 120px;">series</th>
-                <th>title</th>
-                <th style="width: 130px;">category</th>
-                <th style="width: 130px;">date</th>
-                <th style="width: 120px;">status</th>
-                <th style="width: 90px;">progress</th>
-                <th class="table-fixed-actions">操作</th>
-              </tr>
-            </thead>
-            <tbody id="videosTbody"></tbody>
-          </table>
-        </div>
+    <section class="panel p-3 mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h2 class="h5 mb-0">日曆筆記（多列）</h2>
+        <button id="addNoteBtn" class="btn btn-sm btn-outline-primary" type="button">新增筆記</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th style="width: 120px;">序號</th>
+              <th style="width: 190px;">日期</th>
+              <th>筆記</th>
+              <th class="table-fixed-actions">操作</th>
+            </tr>
+          </thead>
+          <tbody id="notesTbody"></tbody>
+        </table>
       </div>
     </section>
 
-    <section class="card mb-4">
-      <div class="card-body">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-          <h2 class="h5 mb-0">Notes CRUD</h2>
-          <button id="addNoteBtn" class="btn btn-sm btn-outline-primary" type="button">新增筆記</button>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-sm table-striped align-middle">
-            <thead>
-              <tr>
-                <th style="width: 140px;">date</th>
-                <th style="width: 220px;">title</th>
-                <th>content</th>
-                <th class="table-fixed-actions">操作</th>
-              </tr>
-            </thead>
-            <tbody id="notesTbody"></tbody>
-          </table>
-        </div>
+    <section class="panel p-3 mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h2 class="h5 mb-0">學習影片</h2>
+        <button id="addVideoBtn" class="btn btn-sm btn-outline-primary" type="button">新增影片</button>
+      </div>
+
+      <div class="toolbar-grid mb-3">
+        <input id="searchText" class="form-control" placeholder="搜尋集數 / 標題 / 網址 / 日期">
+        <select id="dateFilter" class="form-select">
+          <option value="all">全部日期</option>
+          <option value="dated">已有日期</option>
+          <option value="undated">未排日期</option>
+        </select>
+        <select id="statusFilter" class="form-select">
+          <option value="all">全部狀態</option>
+          <option value="planned">未開始</option>
+          <option value="watching">觀看中</option>
+          <option value="completed">已完成</option>
+        </select>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th style="width: 110px;">集數</th>
+              <th>影片名稱</th>
+              <th style="width: 150px;">日期</th>
+              <th style="width: 120px;">狀態</th>
+              <th style="width: 90px;">進度</th>
+              <th class="table-fixed-actions">操作</th>
+            </tr>
+          </thead>
+          <tbody id="videosTbody"></tbody>
+        </table>
       </div>
     </section>
   </main>
@@ -194,11 +239,11 @@
         </div>
         <div class="modal-body">
           <input id="noteId" type="hidden">
-          <label class="form-label" for="noteDate">date</label>
+          <label class="form-label" for="noteDate">日期</label>
           <input id="noteDate" class="form-control mono" placeholder="2026-06-17">
-          <label class="form-label mt-2" for="noteTitle">title</label>
-          <input id="noteTitle" class="form-control" placeholder="學習筆記">
-          <label class="form-label mt-2" for="noteContent">content</label>
+          <label class="form-label mt-2" for="noteTitle">標題</label>
+          <input id="noteTitle" class="form-control" placeholder="日曆筆記">
+          <label class="form-label mt-2" for="noteContent">筆記內容</label>
           <textarea id="noteContent" class="form-control" rows="4"></textarea>
         </div>
         <div class="modal-footer">
@@ -220,47 +265,47 @@
           <input id="videoId" type="hidden">
           <div class="row g-2">
             <div class="col-md-4">
-              <label class="form-label" for="videoSeries">series</label>
+              <label class="form-label" for="videoSeries">集數</label>
               <input id="videoSeries" class="form-control">
             </div>
             <div class="col-md-8">
-              <label class="form-label" for="videoTitle">title</label>
+              <label class="form-label" for="videoTitle">影片名稱</label>
               <input id="videoTitle" class="form-control">
             </div>
             <div class="col-md-4">
-              <label class="form-label" for="videoCategory">category</label>
+              <label class="form-label" for="videoCategory">分類</label>
               <input id="videoCategory" class="form-control">
             </div>
             <div class="col-md-4">
-              <label class="form-label" for="videoDate">date</label>
+              <label class="form-label" for="videoDate">日期</label>
               <input id="videoDate" class="form-control mono" placeholder="2026-06-17">
             </div>
             <div class="col-md-4">
-              <label class="form-label" for="videoStatus">status</label>
+              <label class="form-label" for="videoStatus">狀態</label>
               <select id="videoStatus" class="form-select">
-                <option value="planned">planned</option>
-                <option value="watching">watching</option>
-                <option value="completed">completed</option>
+                <option value="planned">未開始</option>
+                <option value="watching">觀看中</option>
+                <option value="completed">已完成</option>
               </select>
             </div>
             <div class="col-md-6">
-              <label class="form-label" for="videoProgress">progress</label>
+              <label class="form-label" for="videoProgress">進度</label>
               <input id="videoProgress" class="form-control" type="number" min="0" max="100" value="0">
             </div>
             <div class="col-md-6">
-              <label class="form-label" for="videoDuration">duration</label>
+              <label class="form-label" for="videoDuration">片長</label>
               <input id="videoDuration" class="form-control" type="number" min="0" value="0">
             </div>
             <div class="col-12">
-              <label class="form-label" for="videoUrl">url</label>
+              <label class="form-label" for="videoUrl">影片網址</label>
               <input id="videoUrl" class="form-control mono">
             </div>
             <div class="col-12">
-              <label class="form-label" for="videoTags">tags</label>
-              <input id="videoTags" class="form-control" placeholder="Firebase, Firestore">
+              <label class="form-label" for="videoTags">標籤</label>
+              <input id="videoTags" class="form-control" placeholder="舊資料, CNC">
             </div>
             <div class="col-12">
-              <label class="form-label" for="videoNote">note</label>
+              <label class="form-label" for="videoNote">備註</label>
               <textarea id="videoNote" class="form-control" rows="3"></textarea>
             </div>
           </div>
@@ -291,6 +336,7 @@
       deleteVideo,
       importJsonData,
       loadNotes,
+      loadSampleImportData,
       loadSettings,
       loadVideos,
       saveAdminUser,
@@ -302,8 +348,10 @@
     const state = {
       user: null,
       videos: [],
-      notes: []
+      notes: [],
+      fromCache: false
     };
+
     const noteModal = new bootstrap.Modal(document.getElementById("noteModal"));
     const videoModal = new bootstrap.Modal(document.getElementById("videoModal"));
     const toast = new bootstrap.Toast(document.getElementById("appToast"));
@@ -311,6 +359,17 @@
     function showToast(message) {
       document.getElementById("toastBody").textContent = message;
       toast.show();
+    }
+
+    function setBadge(id, text, theme = "secondary") {
+      const badge = document.getElementById(id);
+      if (!badge) return;
+      badge.textContent = text;
+      if (id === "sourceBadge") {
+        badge.className = "status-pill";
+        return;
+      }
+      badge.className = `badge text-bg-${theme}`;
     }
 
     function escapeHtml(value) {
@@ -326,7 +385,6 @@
     function toDateInput(value) {
       if (!value) return "";
       if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return String(value).trim();
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -342,18 +400,20 @@
       return video.title || video.name || "";
     }
 
-    function getCompletedVideos() {
-      return state.videos.filter((video) => video.status === "completed");
+    function getStatusLabel(status) {
+      return {
+        planned: "未開始",
+        watching: "觀看中",
+        completed: "已完成"
+      }[status] || status || "未開始";
     }
 
     function renderDashboard() {
       const totalVideos = state.videos.length;
-      const completedVideos = getCompletedVideos().length;
-      const unfinishedVideos = totalVideos - completedVideos;
-
+      const completedVideos = state.videos.filter((video) => video.status === "completed").length;
       document.getElementById("totalVideosCount").textContent = totalVideos;
       document.getElementById("completedVideosCount").textContent = completedVideos;
-      document.getElementById("unfinishedVideosCount").textContent = unfinishedVideos;
+      document.getElementById("unfinishedVideosCount").textContent = totalVideos - completedVideos;
       document.getElementById("notesCount").textContent = state.notes.length;
     }
 
@@ -362,15 +422,15 @@
       const rows = [...state.notes].sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")));
 
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">目前沒有筆記。</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-secondary py-4">目前沒有筆記。</td></tr>';
         return;
       }
 
-      tbody.innerHTML = rows.map((note) => `
+      tbody.innerHTML = rows.map((note, index) => `
         <tr>
+          <td class="mono">${escapeHtml(note.rowId || note.id || index + 1)}</td>
           <td class="mono">${escapeHtml(note.date || "")}</td>
-          <td>${escapeHtml(note.title || "")}</td>
-          <td class="truncate-cell">${escapeHtml(note.content || "")}</td>
+          <td class="truncate-cell">${escapeHtml(note.content || note.note || note.title || "")}</td>
           <td>
             <button class="btn btn-sm btn-outline-secondary" data-edit-note="${escapeHtml(note.id)}">編輯</button>
             <button class="btn btn-sm btn-outline-danger" data-delete-note="${escapeHtml(note.id)}">刪除</button>
@@ -401,7 +461,7 @@
         ].some((value) => String(value || "").toLowerCase().includes(queryText)));
       }
 
-      return videos.sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")));
+      return videos.sort((a, b) => String(a.series || "").localeCompare(String(b.series || ""), undefined, { numeric: true }));
     }
 
     function renderVideos() {
@@ -409,17 +469,16 @@
       const videos = getFilteredVideos();
 
       if (!videos.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">沒有符合條件的影片。</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary py-4">沒有符合條件的影片。</td></tr>';
         return;
       }
 
       tbody.innerHTML = videos.map((video) => `
         <tr>
-          <td>${escapeHtml(video.series || "")}</td>
-          <td>${escapeHtml(getVideoTitle(video))}</td>
-          <td>${escapeHtml(video.category || "")}</td>
+          <td class="mono">${escapeHtml(video.series || "")}</td>
+          <td class="truncate-cell">${escapeHtml(getVideoTitle(video))}</td>
           <td class="mono">${escapeHtml(video.date || "")}</td>
-          <td>${escapeHtml(video.status || "")}</td>
+          <td>${escapeHtml(getStatusLabel(video.status))}</td>
           <td>${clampPercent(video.progress)}%</td>
           <td>
             <button class="btn btn-sm btn-outline-secondary" data-edit-video="${escapeHtml(video.id)}">編輯</button>
@@ -431,8 +490,9 @@
 
     function renderAdmin() {
       renderDashboard();
-      renderVideos();
       renderNotes();
+      renderVideos();
+      setBadge("sourceBadge", state.fromCache ? "本機備援資料" : "Firestore 已同步", state.fromCache ? "warning" : "success");
     }
 
     async function loadAllData() {
@@ -440,12 +500,12 @@
         const [videoResult, noteResult] = await Promise.all([loadVideos(), loadNotes(), loadSettings()]);
         state.videos = videoResult.data;
         state.notes = noteResult.data;
+        state.fromCache = videoResult.fromCache || noteResult.fromCache;
         renderAdmin();
-
-        const fromCache = videoResult.fromCache || noteResult.fromCache;
-        showToast(fromCache ? "正在使用本機快取或範例資料。" : "已載入 Firestore 資料。");
+        showToast(state.fromCache ? "正在使用本機快取或範例資料。" : "已載入 Firestore 資料。");
       } catch (error) {
-        console.error("Admin 資料載入失敗", error);
+        console.error("後台資料載入失敗", error);
+        setBadge("sourceBadge", "載入失敗", "danger");
         showToast("資料載入失敗，請檢查 Firebase 設定。");
       }
     }
@@ -453,8 +513,8 @@
     function openNoteModal(note = null) {
       document.getElementById("noteId").value = note?.id || "";
       document.getElementById("noteDate").value = toDateInput(note?.date || "");
-      document.getElementById("noteTitle").value = note?.title || "";
-      document.getElementById("noteContent").value = note?.content || "";
+      document.getElementById("noteTitle").value = note?.title || "日曆筆記";
+      document.getElementById("noteContent").value = note?.content || note?.note || "";
       document.getElementById("noteModalTitle").textContent = note?.id ? "編輯筆記" : "新增筆記";
       noteModal.show();
     }
@@ -463,7 +523,7 @@
       document.getElementById("videoId").value = video?.id || "";
       document.getElementById("videoSeries").value = video?.series || "";
       document.getElementById("videoTitle").value = getVideoTitle(video || {});
-      document.getElementById("videoCategory").value = video?.category || "";
+      document.getElementById("videoCategory").value = video?.category || "CNC / Manufacturing";
       document.getElementById("videoDate").value = toDateInput(video?.date || "");
       document.getElementById("videoStatus").value = video?.status || "planned";
       document.getElementById("videoProgress").value = clampPercent(video?.progress || 0);
@@ -516,6 +576,24 @@
       }
     }
 
+    function getImportErrorMessage(error) {
+      if (error instanceof SyntaxError) return "JSON 格式錯誤，請貼完整 JSON 內容，不是檔案路徑。";
+      if (error?.code === "permission-denied") return "Firestore 權限被拒，請先發布安全規則。";
+      if (error?.code === "unauthenticated") return "尚未登入或登入狀態失效，請重新登入。";
+      if (error?.message) return `匯入失敗：${error.message}`;
+      return "匯入失敗，請檢查格式與權限。";
+    }
+
+    async function importDataToFirestore(data) {
+      setBadge("importBadge", "匯入中", "primary");
+      const result = await importJsonData(data);
+      document.getElementById("importText").value = "";
+      document.getElementById("importBox").classList.add("d-none");
+      await loadAllData();
+      setBadge("importBadge", `已匯入 ${result.videos} / ${result.notes}`, "success");
+      showToast(`已匯入 Firestore：${result.videos} 支影片、${result.notes} 則筆記。`);
+    }
+
     async function handleImportJson() {
       try {
         const raw = document.getElementById("importText").value.trim();
@@ -523,16 +601,21 @@
           showToast("請先貼上 JSON。");
           return;
         }
-
-        const data = JSON.parse(raw);
-        await importJsonData(data);
-        document.getElementById("importText").value = "";
-        document.getElementById("importBox").classList.add("d-none");
-        await loadAllData();
-        showToast("JSON 已匯入 Firestore。");
+        await importDataToFirestore(JSON.parse(raw));
       } catch (error) {
         console.error("JSON 匯入失敗", error);
-        showToast("JSON 匯入失敗，請檢查格式與權限。");
+        setBadge("importBadge", "匯入失敗", "danger");
+        showToast(getImportErrorMessage(error));
+      }
+    }
+
+    async function handleImportSampleJson() {
+      try {
+        await importDataToFirestore(await loadSampleImportData());
+      } catch (error) {
+        console.error("內建舊資料匯入失敗", error);
+        setBadge("importBadge", "匯入失敗", "danger");
+        showToast(getImportErrorMessage(error));
       }
     }
 
@@ -552,6 +635,16 @@
       }
     }
 
+    async function verifyAdminAccess() {
+      try {
+        if (!state.user) throw new Error("尚未登入");
+        await saveAdminUser(state.user);
+      } catch (error) {
+        console.error("Firebase 管理員權限檢查失敗", error);
+        showToast(getImportErrorMessage(error));
+      }
+    }
+
     async function initAdmin() {
       try {
         const user = await requireAdmin();
@@ -559,16 +652,11 @@
 
         state.user = user;
         document.getElementById("adminStatus").textContent = `已登入：${user.email}`;
-        try {
-          await saveAdminUser(user);
-        } catch (error) {
-          console.error("users/admin 初始化失敗，請檢查 Firestore Rules", error);
-          showToast("Admin 使用者初始化失敗，請檢查 Firestore Rules。");
-        }
+        await verifyAdminAccess();
         await loadAllData();
       } catch (error) {
-        console.error("Admin 初始化失敗", error);
-        showToast("Admin 初始化失敗，請檢查 Firebase 設定。");
+        console.error("後台初始化失敗", error);
+        showToast("後台初始化失敗，請檢查 Firebase 設定。");
       }
     }
 
@@ -587,13 +675,14 @@
     document.getElementById("toggleImportBtn").addEventListener("click", () => document.getElementById("importBox").classList.toggle("d-none"));
     document.getElementById("cancelImportBtn").addEventListener("click", () => document.getElementById("importBox").classList.add("d-none"));
     document.getElementById("importBtn").addEventListener("click", handleImportJson);
+    document.getElementById("importSampleBtn").addEventListener("click", handleImportSampleJson);
     document.getElementById("settingsBtn").addEventListener("click", async () => {
       try {
         await saveSettings({ siteName: "Louis Study Tracker", theme: "light", calendarStartDay: 1 });
-        showToast("settings/main 已初始化。");
+        showToast("網站設定已初始化。");
       } catch (error) {
-        console.error("settings 初始化失敗", error);
-        showToast("settings 初始化失敗。");
+        console.error("網站設定初始化失敗", error);
+        showToast("網站設定初始化失敗。");
       }
     });
     document.getElementById("addNoteBtn").addEventListener("click", () => openNoteModal());
@@ -607,7 +696,6 @@
     document.getElementById("notesTbody").addEventListener("click", async (event) => {
       const editId = event.target.dataset.editNote;
       const deleteId = event.target.dataset.deleteNote;
-
       if (editId) openNoteModal(state.notes.find((note) => note.id === editId));
       if (deleteId && confirm("確定要刪除這筆筆記？")) {
         try {
@@ -624,7 +712,6 @@
     document.getElementById("videosTbody").addEventListener("click", async (event) => {
       const editId = event.target.dataset.editVideo;
       const deleteId = event.target.dataset.deleteVideo;
-
       if (editId) openVideoModal(state.videos.find((video) => video.id === editId));
       if (deleteId && confirm("確定要刪除這支影片？")) {
         try {

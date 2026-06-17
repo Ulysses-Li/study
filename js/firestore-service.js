@@ -14,7 +14,8 @@ import {
   query,
   serverTimestamp,
   setDoc,
-  updateDoc
+  updateDoc,
+  writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { db } from "./firebase-config.js";
 
@@ -63,6 +64,10 @@ async function loadImportFallback() {
     console.error("Failed to load data/sample-import.json fallback.", error);
     return { videos: [], notes: [] };
   }
+}
+
+export async function loadSampleImportData() {
+  return loadImportFallback();
 }
 
 function snapshotToRows(snapshot) {
@@ -188,40 +193,117 @@ export async function saveAdminUser(user) {
 }
 
 export async function importJsonData(data) {
-  const videos = Array.isArray(data?.videos) ? data.videos : Array.isArray(data?.VIDEO_DB) ? data.VIDEO_DB : [];
-  const notes = Array.isArray(data?.notes) ? data.notes : [];
-  const legacyNotes = data?.CALENDAR_NOTES && typeof data.CALENDAR_NOTES === "object" ? data.CALENDAR_NOTES : {};
+  const { videos, notes } = normalizeImportData(data);
+  let pendingWrites = 0;
+  let batch = writeBatch(db);
 
-  for (const video of videos) {
-    await saveVideo({
-      title: video.title || video.name || "",
+  async function commitIfNeeded(force = false) {
+    if (pendingWrites === 0) return;
+    if (!force && pendingWrites < 450) return;
+    await batch.commit();
+    batch = writeBatch(db);
+    pendingWrites = 0;
+  }
+
+  videos.forEach((video, index) => {
+    const id = getStableImportId("video", video, index);
+    batch.set(doc(db, "videos", id), {
+      title: video.title || "",
       series: video.series || "",
       category: video.category || "",
       url: video.url || "",
-      date: normalizeImportedDate(video.date),
+      date: video.date || "",
       status: video.status || "planned",
-      progress: video.progress || 0,
-      duration: video.duration || 0,
-      tags: video.tags || [],
-      note: video.note || ""
-    });
-  }
+      progress: Number(video.progress || 0),
+      duration: Number(video.duration || 0),
+      tags: Array.isArray(video.tags) ? video.tags : [],
+      note: video.note || "",
+      importedAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+    pendingWrites += 1;
+  });
 
-  for (const note of notes) {
-    await saveNote({
-      date: normalizeImportedDate(note.date),
+  await commitIfNeeded();
+
+  notes.forEach((note, index) => {
+    const id = getStableImportId("note", note, index);
+    batch.set(doc(db, "notes", id), {
+      date: note.date || "",
       title: note.title || "",
-      content: note.content || note.note || ""
-    });
-  }
+      content: note.content || "",
+      importedAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+    pendingWrites += 1;
+  });
 
-  for (const [date, content] of Object.entries(legacyNotes)) {
-    await saveNote({
+  await commitIfNeeded(true);
+
+  return {
+    videos: videos.length,
+    notes: notes.length
+  };
+}
+
+export function normalizeImportData(data) {
+  const sourceVideos = Array.isArray(data?.videos) ? data.videos : Array.isArray(data?.VIDEO_DB) ? data.VIDEO_DB : [];
+  const sourceNotes = Array.isArray(data?.notes) ? data.notes : [];
+  const legacyNotes = data?.CALENDAR_NOTES && typeof data.CALENDAR_NOTES === "object" ? data.CALENDAR_NOTES : {};
+
+  const videos = sourceVideos.map((video) => ({
+    title: video.title || video.name || "",
+    series: String(video.series || "").trim(),
+    category: video.category || "CNC / Manufacturing",
+    url: video.url || "",
+    date: normalizeImportedDate(video.date),
+    status: video.status || "planned",
+    progress: Number(video.progress || 0),
+    duration: Number(video.duration || 0),
+    tags: Array.isArray(video.tags) ? video.tags : ["Legacy", "CNC"],
+    note: video.note || ""
+  }));
+
+  const notes = [
+    ...sourceNotes.map((note) => ({
+      date: normalizeImportedDate(note.date),
+      title: note.title || "Calendar Note",
+      content: note.content || note.note || ""
+    })),
+    ...Object.entries(legacyNotes).map(([date, content]) => ({
       date: normalizeImportedDate(date),
       title: "Calendar Note",
       content: Array.isArray(content) ? content.join("\n") : String(content || "")
-    });
-  }
+    }))
+  ];
+
+  return {
+    videos,
+    notes
+  };
+}
+
+function getStableImportId(type, item, index) {
+  const raw = [
+    type,
+    item.series,
+    item.date,
+    item.url,
+    item.title,
+    item.content,
+    index
+  ].filter(Boolean).join("-");
+
+  return slugify(raw).slice(0, 120) || `${type}-${index + 1}`;
+}
+
+function slugify(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function normalizeImportedDate(value) {
