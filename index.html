@@ -114,7 +114,9 @@
     }
 
     .calendar-pill {
-      display: block;
+      display: flex;
+      align-items: center;
+      gap: 5px;
       margin-top: 6px;
       border-radius: 6px;
       padding: 5px 6px;
@@ -122,6 +124,23 @@
       line-height: 1.25;
       overflow-wrap: anywhere;
       text-align: left;
+    }
+
+    .calendar-pill svg {
+      width: 14px;
+      height: 14px;
+      flex: 0 0 auto;
+    }
+
+    .calendar-pill-text {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .calendar-pill-count {
+      display: none;
     }
 
     .video-pill {
@@ -204,12 +223,40 @@
     @media (max-width: 767.98px) {
       .calendar th,
       .calendar td {
-        min-width: 84px;
-        height: 104px;
+        min-width: 58px;
+        height: 92px;
+        padding: 4px;
       }
 
       .calendar th {
-        height: 60px;
+        height: 48px;
+      }
+
+      .day-num {
+        font-size: .95rem;
+      }
+
+      .calendar-pill {
+        justify-content: center;
+        gap: 2px;
+        margin-top: 5px;
+        min-height: 26px;
+        padding: 4px;
+      }
+
+      .calendar-pill svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      .calendar-pill-text {
+        display: none;
+      }
+
+      .calendar-pill-count {
+        display: inline;
+        font-size: .72rem;
+        font-weight: 700;
       }
 
       .summary-value {
@@ -467,6 +514,14 @@
       return [note.title, note.content, note.date].join(" ").toLowerCase();
     }
 
+    function iconSvg(name) {
+      const icons = {
+        play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"></path></svg>',
+        note: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 3h9l3 3v15H6V3zm8 1.8V7h2.2L14 4.8zM8 10h8V8.5H8V10zm0 3h8v-1.5H8V13zm0 3h6v-1.5H8V16z"></path></svg>'
+      };
+      return icons[name] || "";
+    }
+
     function getSelectedMonthPrefix() {
       return `${state.year}-${String(state.month + 1).padStart(2, "0")}`;
     }
@@ -545,12 +600,14 @@
         if (isToday) className += " today";
         if (isSelected) className += " is-selected";
 
-        const videoText = group.videos.length
-          ? `<span class="calendar-pill video-pill">${"▶ ".repeat(Math.min(group.videos.length, 4)).trim()}</span>`
-          : "";
         const notePreview = group.notes[0]?.content || group.notes[0]?.title || "";
+        const videoLabel = `${group.videos.length} 筆影片`;
+        const noteLabel = notePreview || `${group.notes.length} 筆筆記`;
+        const videoText = group.videos.length
+          ? `<span class="calendar-pill video-pill" title="${escapeHtml(videoLabel)}" aria-label="${escapeHtml(videoLabel)}">${iconSvg("play")}<span class="calendar-pill-text">${escapeHtml(videoLabel)}</span><span class="calendar-pill-count">${group.videos.length}</span></span>`
+          : "";
         const noteText = group.notes.length
-          ? `<span class="calendar-pill note-pill">${escapeHtml(notePreview || `筆記 ${group.notes.length}`)}</span>`
+          ? `<span class="calendar-pill note-pill" title="${escapeHtml(noteLabel)}" aria-label="${escapeHtml(noteLabel)}">${iconSvg("note")}<span class="calendar-pill-text">${escapeHtml(noteLabel)}</span><span class="calendar-pill-count">${group.notes.length}</span></span>`
           : "";
 
         html += `
