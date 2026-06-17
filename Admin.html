@@ -156,6 +156,31 @@
       text-align: center;
     }
 
+    .field-help-panel {
+      background: #f8fbff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .field-help-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 14px;
+    }
+
+    .field-help-term {
+      font-weight: 700;
+      color: #26364f;
+      font-size: .86rem;
+    }
+
+    .field-help-desc {
+      color: var(--text-muted);
+      font-size: .86rem;
+      margin-top: 2px;
+    }
+
     @media (max-width: 768px) {
       body {
         font-size: 14px;
@@ -282,6 +307,22 @@
 
       .table-meta {
         width: 100%;
+      }
+
+      .modal-dialog {
+        margin: 10px;
+      }
+
+      .modal-header {
+        align-items: flex-start;
+      }
+
+      .modal-title-wrap {
+        min-width: 0;
+      }
+
+      .field-help-grid {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -487,11 +528,58 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 id="videoModalTitle" class="modal-title">新增影片</h5>
+          <div class="modal-title-wrap">
+            <h5 id="videoModalTitle" class="modal-title mb-1">新增影片</h5>
+            <button id="videoFieldHelpBtn" class="btn btn-sm btn-outline-secondary" type="button" aria-controls="videoFieldHelp" aria-expanded="false">欄位說明</button>
+          </div>
           <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <input id="videoId" type="hidden">
+          <div id="videoFieldHelp" class="field-help-panel d-none mb-3">
+            <div class="field-help-grid">
+              <div>
+                <div class="field-help-term">系列</div>
+                <div class="field-help-desc">影片排序用的編號或系列代碼，清單會依這欄排序。</div>
+              </div>
+              <div>
+                <div class="field-help-term">影片標題</div>
+                <div class="field-help-desc">前台與管理清單顯示的主要名稱。</div>
+              </div>
+              <div>
+                <div class="field-help-term">分類</div>
+                <div class="field-help-desc">用來篩選主題，例如 CNC / Manufacturing。</div>
+              </div>
+              <div>
+                <div class="field-help-term">日期</div>
+                <div class="field-help-desc">排入月曆的日期，格式建議 2026-06-17；空白代表尚未排程。</div>
+              </div>
+              <div>
+                <div class="field-help-term">狀態</div>
+                <div class="field-help-desc">待安排、進行中、已完成，會影響前台狀態篩選。</div>
+              </div>
+              <div>
+                <div class="field-help-term">進度</div>
+                <div class="field-help-desc">0 到 100 的百分比。已完成通常填 100。</div>
+              </div>
+              <div>
+                <div class="field-help-term">時長</div>
+                <div class="field-help-desc">影片長度的數值，可先留 0。</div>
+              </div>
+              <div>
+                <div class="field-help-term">影片連結</div>
+                <div class="field-help-desc">YouTube 或其他影片網址。</div>
+              </div>
+              <div>
+                <div class="field-help-term">標籤</div>
+                <div class="field-help-desc">用逗號分隔多個標籤，例如 CNC, Tooling。</div>
+              </div>
+              <div>
+                <div class="field-help-term">備註</div>
+                <div class="field-help-desc">補充學習重點、來源或待辦事項。</div>
+              </div>
+            </div>
+          </div>
           <div class="row g-2">
             <div class="col-md-4">
               <label class="form-label" for="videoSeries">系列</label>
@@ -652,6 +740,14 @@
 
     function openHelpModal() {
       helpModal.show();
+    }
+
+    function setVideoFieldHelpVisible(isVisible) {
+      const panel = document.getElementById("videoFieldHelp");
+      const button = document.getElementById("videoFieldHelpBtn");
+      panel.classList.toggle("d-none", !isVisible);
+      button.setAttribute("aria-expanded", String(isVisible));
+      button.textContent = isVisible ? "收合說明" : "欄位說明";
     }
 
     function setBadge(id, text, theme = "secondary") {
@@ -924,6 +1020,7 @@
       document.getElementById("videoTags").value = Array.isArray(video?.tags) ? video.tags.join(", ") : "";
       document.getElementById("videoNote").value = video?.note || "";
       document.getElementById("videoModalTitle").textContent = video?.id ? "編輯影片" : "新增影片";
+      setVideoFieldHelpVisible(false);
       videoModal.show();
     }
 
@@ -1099,6 +1196,10 @@
     document.getElementById("addVideoBtn").addEventListener("click", () => openVideoModal());
     document.getElementById("saveNoteBtn").addEventListener("click", handleSaveNote);
     document.getElementById("saveVideoBtn").addEventListener("click", handleSaveVideo);
+    document.getElementById("videoFieldHelpBtn").addEventListener("click", () => {
+      const isExpanded = document.getElementById("videoFieldHelpBtn").getAttribute("aria-expanded") === "true";
+      setVideoFieldHelpVisible(!isExpanded);
+    });
     document.getElementById("noteSearchText").addEventListener("input", (event) => {
       state.noteFilters.searchText = event.target.value;
       state.noteFilters.page = 1;

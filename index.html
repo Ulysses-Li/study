@@ -229,6 +229,59 @@
       text-align: center;
     }
 
+    .day-panel-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .day-panel-count {
+      color: var(--text-muted);
+      font-size: .88rem;
+      white-space: nowrap;
+    }
+
+    .note-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .note-item {
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--brand);
+      border-radius: 8px;
+      background: #fbfdff;
+      padding: 12px;
+    }
+
+    .note-item-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .note-item-title {
+      font-weight: 800;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .note-item-date {
+      color: var(--text-muted);
+      font-size: .82rem;
+      white-space: nowrap;
+    }
+
+    .note-item-content {
+      color: #26364f;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
     @media (max-width: 767.98px) {
       .calendar th,
       .calendar td {
@@ -266,6 +319,18 @@
         display: inline;
         font-size: .72rem;
         font-weight: 700;
+      }
+
+      .day-panel-heading {
+        align-items: flex-start;
+      }
+
+      .note-item-header {
+        display: block;
+      }
+
+      .note-item-date {
+        margin-top: 3px;
       }
 
       .summary-value {
@@ -391,7 +456,10 @@
 
           <section class="col-12 col-lg-6">
             <div class="content-panel p-3 h-100">
-          <h2 class="h5 mb-3">當日筆記</h2>
+          <div class="day-panel-heading mb-3">
+            <h2 class="h5 mb-0">當日筆記</h2>
+            <span id="dayNotesCount" class="day-panel-count">0 筆</span>
+          </div>
           <div id="dayNotesList"></div>
             </div>
           </section>
@@ -501,6 +569,14 @@
       return video.title || video.name || "未命名影片";
     }
 
+    function getNoteTitle(note) {
+      return note.title || "未命名筆記";
+    }
+
+    function getNoteContent(note) {
+      return note.content || note.note || "";
+    }
+
     function normalizeVideoStatus(video) {
       const status = String(video?.status || "planned").trim();
       return ["planned", "watching", "completed"].includes(status) ? status : "planned";
@@ -550,7 +626,7 @@
     }
 
     function getNoteSearchText(note) {
-      return [note.title, note.content, note.date].join(" ").toLowerCase();
+      return [getNoteTitle(note), getNoteContent(note), note.date].join(" ").toLowerCase();
     }
 
     function iconSvg(name) {
@@ -662,14 +738,18 @@
         if (isToday) className += " today";
         if (isSelected) className += " is-selected";
 
-        const notePreview = group.notes[0]?.content || group.notes[0]?.title || "";
         const videoLabel = `${group.videos.length} 筆影片`;
-        const noteLabel = notePreview || `${group.notes.length} 筆筆記`;
+        const noteLabel = group.notes.length === 1
+          ? getNoteTitle(group.notes[0])
+          : `${group.notes.length} 筆筆記`;
+        const noteTooltip = group.notes.length > 1
+          ? `${group.notes.length} 筆筆記：${group.notes.map(getNoteTitle).join("、")}`
+          : noteLabel;
         const videoText = group.videos.length
           ? `<span class="calendar-pill video-pill" title="${escapeHtml(videoLabel)}" aria-label="${escapeHtml(videoLabel)}">${iconSvg("play")}<span class="calendar-pill-text">${escapeHtml(videoLabel)}</span><span class="calendar-pill-count">${group.videos.length}</span></span>`
           : "";
         const noteText = group.notes.length
-          ? `<span class="calendar-pill note-pill" title="${escapeHtml(noteLabel)}" aria-label="${escapeHtml(noteLabel)}">${iconSvg("note")}<span class="calendar-pill-text">${escapeHtml(noteLabel)}</span><span class="calendar-pill-count">${group.notes.length}</span></span>`
+          ? `<span class="calendar-pill note-pill" title="${escapeHtml(noteTooltip)}" aria-label="${escapeHtml(noteTooltip)}">${iconSvg("note")}<span class="calendar-pill-text">${escapeHtml(noteLabel)}</span><span class="calendar-pill-count">${group.notes.length}</span></span>`
           : "";
 
         html += `
@@ -702,6 +782,7 @@
     function renderDayPanel() {
       const group = state.byDate[state.selectedDate] || { videos: [], notes: [] };
       document.getElementById("selectedDateTitle").textContent = `${state.selectedDate} 影片`;
+      document.getElementById("dayNotesCount").textContent = `${group.notes.length} 筆`;
 
       renderVideoList("dayVideosList", group.videos, "這一天還沒有排程影片。");
 
@@ -711,13 +792,15 @@
         return;
       }
 
-      notesTarget.innerHTML = group.notes.map((note) => `
-        <div class="border-bottom pb-3 mb-3">
-          <div class="fw-semibold">${escapeHtml(note.title || "未命名筆記")}</div>
-          <div class="text-secondary small mb-2">${escapeHtml(note.date || "")}</div>
-          <div>${escapeHtml(note.content || "")}</div>
-        </div>
-      `).join("");
+      notesTarget.innerHTML = `<div class="note-list">${group.notes.map((note) => `
+        <article class="note-item">
+          <div class="note-item-header">
+            <div class="note-item-title">${escapeHtml(getNoteTitle(note))}</div>
+            <div class="note-item-date">${escapeHtml(normalizeDateKey(note.date) || note.date || "")}</div>
+          </div>
+          <div class="note-item-content">${escapeHtml(getNoteContent(note) || "沒有內容。")}</div>
+        </article>
+      `).join("")}</div>`;
     }
 
     function renderFilteredResults() {
